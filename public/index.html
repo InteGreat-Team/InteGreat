@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event JSON Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event JSON Generator</h1>
+    
+    <div class="form-group">
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" placeholder="Enter event name">
+    </div>
+    
+    <div class="form-group">
+        <label for="eventDate">Event Date:</label>
+        <input type="date" id="eventDate">
+    </div>
+    
+    <div class="form-group">
+        <label for="eventTime">Event Time:</label>
+        <input type="time" id="eventTime">
+    </div>
+    
+    <div class="form-group">
+        <label for="eventLocation">Event Location:</label>
+        <input type="text" id="eventLocation" placeholder="Enter event location">
+    </div>
+    
+    <div class="form-group">
+        <label for="eventDescription">Event Description:</label>
+        <textarea id="eventDescription" rows="4" placeholder="Enter event description"></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="organizer">Organizer:</label>
+        <input type="text" id="organizer" placeholder="Enter organizer name">
+    </div>
+    
+    <div class="form-group">
+        <label for="contactEmail">Contact Email:</label>
+        <input type="email" id="contactEmail" placeholder="Enter contact email">
+    </div>
+    
+    <button id="generateJSON">Generate JSON File</button>
+    
+    <script>
+        document.getElementById('generateJSON').addEventListener('click', function() {
+            // Get values from form
+            const eventName = document.getElementById('eventName').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const eventLocation = document.getElementById('eventLocation').value;
+            const eventDescription = document.getElementById('eventDescription').value;
+            const organizer = document.getElementById('organizer').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            
+            // Create event object
+            const eventData = {
+                name: eventName,
+                date: eventDate,
+                time: eventTime,
+                location: eventLocation,
+                description: eventDescription,
+                organizer: organizer,
+                contactEmail: contactEmail,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Convert to JSON string
+            const jsonData = JSON.stringify(eventData, null, 2);
+            
+            // Create a blob with the JSON data
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            
+            // Create a URL for the blob
+            const url = URL.createObjectURL(blob);
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `event_${eventName.replace(/\s+/g, '_').toLowerCase()}_${new Date().getTime()}.json`;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
