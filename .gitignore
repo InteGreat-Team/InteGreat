@@ -1,0 +1,40 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+
+# (Removed AWS Serverless Express / Serverless Framework folders since not using them)
+# If you ever use them, you might want to add:
+# .aws-sam/
+# serverless/
+
+# Supabase (if using Supabase CLI, this will be ignored; if not, it’s harmless)
+.supabase/
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+
+# Temporary files
+tmp/
+temp/
