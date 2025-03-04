@@ -8,6 +8,13 @@ yarn-error.log*
 dist/
 build/
 *.tsbuildinfo
+.build/
+
+# Serverless Framework & Webpack
+.serverless/
+.webpack/
+.esbuild/
+coverage/
 
 # Environment Variables
 .env
@@ -20,21 +27,33 @@ build/
 logs/
 *.log
 
-# (Removed AWS Serverless Express / Serverless Framework folders since not using them)
-# If you ever use them, you might want to add:
-# .aws-sam/
-# serverless/
-
-# Supabase (if using Supabase CLI, this will be ignored; if not, it’s harmless)
+# Supabase (if using Supabase CLI, this will be ignored; if not, it's harmless)
 .supabase/
 
 # IDE and editor files
 .vscode/
 .idea/
+.history/
+*.sublime-project
+*.sublime-workspace
 
 # OS generated files
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Icon?
 
 # Temporary files
 tmp/
 temp/
+
+# Package files
+*.tgz
+*.zip
+*.tar.gz
+
+# Cache directories
+.npm/
+.eslintcache
