@@ -8,12 +8,12 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 
 ## Features
 
-- **Centralized API Management**: Single point of access for multiple applications
-- **Third-Party API Integration**: Connect with external services seamlessly
-- **Inter-Application Communication**: Enable data sharing between different systems
-- **Serverless Deployment**: Leverage AWS Lambda for scaling and cost optimization
-- **Flexible Deployment Options**: Seamlessly transition to traditional servers when needed
-- **TypeScript Support**: Enhanced development experience with type safety
+-   **Centralized API Management**: Single point of access for multiple applications
+-   **Third-Party API Integration**: Connect with external services seamlessly
+-   **Inter-Application Communication**: Enable data sharing between different systems
+-   **Serverless Deployment**: Leverage AWS Lambda for scaling and cost optimization
+-   **Flexible Deployment Options**: Seamlessly transition to traditional servers when needed
+-   **TypeScript Support**: Enhanced development experience with type safety
 
 ## Dependencies
 
@@ -52,15 +52,15 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 
 ### Type Definitions
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| @types/node | 22.13.5 | TypeScript definitions for Node.js |
-| @types/express | 5.0.0 | TypeScript definitions for Express |
-| @types/aws-lambda | 8.10.147 | TypeScript definitions for AWS Lambda |
-| @types/cors | 2.8.17 | TypeScript definitions for cors |
-| @types/axios | 0.9.36 | TypeScript definitions for axios |
-| @types/webpack | 5.28.5 | TypeScript definitions for webpack |
-| @types/webpack-node-externals | 3.0.4 | TypeScript definitions for webpack-node-externals |
+| Package                       | Version  | Description                                       |
+| ----------------------------- | -------- | ------------------------------------------------- |
+| @types/node                   | 22.13.5  | TypeScript definitions for Node.js                |
+| @types/express                | 5.0.0    | TypeScript definitions for Express                |
+| @types/aws-lambda             | 8.10.147 | TypeScript definitions for AWS Lambda             |
+| @types/cors                   | 2.8.17   | TypeScript definitions for cors                   |
+| @types/axios                  | 0.9.36   | TypeScript definitions for axios                  |
+| @types/webpack                | 5.28.5   | TypeScript definitions for webpack                |
+| @types/webpack-node-externals | 3.0.4    | TypeScript definitions for webpack-node-externals |
 
 ## Getting Started
 
@@ -71,6 +71,7 @@ npm install
 ```
 
 ### Local Development
+
 ```bash
 # Start serverless offline for local development
 npm run dev
@@ -80,6 +81,7 @@ serverless offline start
 ```
 
 ### Deployment
+
 ```bash
 # Deploy to AWS
 npm run deploy
