@@ -1,47 +1,52 @@
 /**
  * Express Application Setup
  * 
- * This file contains the core Express application configuration that powers our API.
- * It sets up middleware, defines routes, and configures error handling.
+ * This is the main Express application configuration file that sets up middleware,
+ * routes, and error handling for the API Gateway. It serves as the central point
+ * for assembling all components of the application.
  * 
  * Key Components:
- * - Middleware Configuration: CORS, JSON parsing, and request logging
- * - Route Definitions: API endpoints organized by feature
- * - Error Handling: Centralized 404 and error responses
+ * - Middleware Configuration: Applies global middleware for all requests
+ * - Route Registration: Mounts all API routes under their respective paths
+ * - Root Endpoint: Provides a simple health check endpoint
+ * - Error Handling: Manages 404 responses for undefined routes
  * 
- * This Express app is designed to work both:
- * - Locally with the Express server for development
- * - In AWS Lambda when wrapped with serverless-http
+ * Features:
+ * - CORS Support: Enables cross-origin resource sharing
+ * - JSON Parsing: Automatically parses JSON request bodies
+ * - Request Logging: Logs all requests using the custom logger middleware
+ * - Modular Routes: Separates routes by functionality domain
  * 
- * The application structure follows a modular approach where routes, controllers,
- * and services are separated for better maintainability and testing.
+ * This file is imported by lambda.ts for AWS Lambda deployment and can also
+ * be used directly for local development with a traditional server.
  */
+
 import express from 'express';
 import cors from 'cors';
+import { requestLogger } from './middleware/logger';
+import emailRoutes from './routes/emailRoutes';
+import eventRoutes from './routes/eventRoutes';
 
-// Create Express app
+// Initialize Express application
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Apply global middleware
+app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Parse JSON request bodies
+app.use(requestLogger); // Log all requests
 
-// Routes
+// Define root endpoint for health checks
 app.get('/', (req, res) => {
-  res.status(200).json({
-    message: 'API is running',
-  });
+  res.status(200).json({ message: 'API is running' });
 });
 
-// TODO: Import your routes
-// import { router as exampleRouter } from './routes/example';
-// app.use('/api/example', exampleRouter);
+// Mount domain-specific route modules
+app.use('/api', emailRoutes);
+app.use('/api', eventRoutes);
 
-// Error handling middleware
+// Handle 404 errors for undefined routes
 app.use((req, res, next) => {
-  res.status(404).json({
-    error: 'Not Found',
-  });
+  res.status(404).json({ error: 'Not Found' });
 });
 
 export default app;

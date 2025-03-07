@@ -19,34 +19,36 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 
 ### Core Dependencies
 
-| Package               | Version | Description                                               |
-| --------------------- | ------- | --------------------------------------------------------- |
-| express               | 4.21.2  | Web framework for handling HTTP requests and routing      |
-| @supabase/supabase-js | 2.49.1  | Supabase client for database operations                   |
-| axios                 | 1.8.1   | HTTP client for making API requests                       |
-| cors                  | 2.8.5   | Middleware to enable CORS (Cross-Origin Resource Sharing) |
-| dotenv                | 16.4.7  | Loads environment variables from .env files               |
-| envalid               | 8.0.0   | Environment variable validation                           |
-| serverless-http       | 3.2.0   | Adapter to run Express apps on AWS Lambda                 |
+| Package | Version | Description |
+|---------|---------|-------------|
+| express | 4.21.2 | Web framework for handling HTTP requests and routing |
+| @supabase/supabase-js | 2.49.1 | Supabase client for database operations |
+| @aws-sdk/client-ses | 3.521.0 | AWS SDK v3 client for Simple Email Service (SES) |
+| axios | 1.8.1 | HTTP client for making API requests |
+| cors | 2.8.5 | Middleware to enable CORS (Cross-Origin Resource Sharing) |
+| dotenv | 16.4.7 | Loads environment variables from .env files |
+| envalid | 8.0.0 | Environment variable validation |
+| serverless-http | 3.2.0 | Adapter to run Express apps on AWS Lambda |
 
 ### Serverless Framework
 
-| Package                  | Version | Description                                   |
-| ------------------------ | ------- | --------------------------------------------- |
-| serverless               | 4.7.0   | Serverless Framework CLI                      |
-| serverless-offline       | 14.4.0  | Local development environment for Serverless  |
-| serverless-webpack       | 5.15.0  | Webpack integration for Serverless            |
-| serverless-plugin-dotenv | 1.0.0   | Loads .env files during Serverless deployment |
-| @serverless/typescript   | 3.38.0  | TypeScript support for Serverless             |
+| Package | Version | Description |
+|---------|---------|-------------|
+| serverless | 3.40.0 | Serverless Framework CLI |
+| serverless-offline | 14.4.0 | Local development environment for Serverless |
+| serverless-webpack | 5.15.0 | Webpack integration for Serverless |
+| serverless-plugin-dotenv | 1.0.0 | Loads .env files during Serverless deployment |
+| @serverless/typescript | 3.38.0 | TypeScript support for Serverless |
 
 ### TypeScript & Build Tools
 
-| Package                | Version | Description                                |
-| ---------------------- | ------- | ------------------------------------------ |
-| typescript             | 5.7.3   | TypeScript language and compiler           |
-| ts-loader              | 9.5.2   | TypeScript loader for webpack              |
-| webpack                | 5.98.0  | Module bundler for JavaScript applications |
-| webpack-node-externals | 3.0.0   | Excludes node_modules from webpack bundles |
+| Package | Version | Description |
+|---------|---------|-------------|
+| typescript | 5.7.3 | TypeScript language and compiler |
+| ts-loader | 9.5.2 | TypeScript loader for webpack |
+| webpack | 5.98.0 | Module bundler for JavaScript applications |
+| webpack-node-externals | 3.0.0 | Excludes node_modules from webpack bundles |
+| ts-node | 10.9.1 | TypeScript execution environment for Node.js |
 
 ### Type Definitions
 

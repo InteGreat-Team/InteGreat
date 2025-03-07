@@ -21,10 +21,11 @@
  */
 
 import type { AWS } from '@serverless/typescript';
+import { env } from './src/config/env';
 
 const serverlessConfiguration: AWS = {
   service: 'integreat',
-  frameworkVersion: '4',
+  frameworkVersion: '3',
   plugins: [
     'serverless-webpack',
     'serverless-offline',
@@ -38,11 +39,22 @@ const serverlessConfiguration: AWS = {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: [
+          'ses:SendEmail',
+          'ses:SendRawEmail'
+        ],
+        Resource: '*'
+      }
+    ],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      SUPABASE_URL: '${env:SUPABASE_URL}',
-      SUPABASE_KEY: '${env:SUPABASE_KEY}',
+      SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
+      SUPABASE_URL: env.SUPABASE_URL,
+      SUPABASE_KEY: env.SUPABASE_KEY,
     },
   },
   functions: {
@@ -68,6 +80,9 @@ const serverlessConfiguration: AWS = {
     individually: true,
   },
   custom: {
+    dotenv: {
+      path: '.env'
+    },
     webpack: {
       webpackConfig: 'webpack.config.ts',
       includeModules: true,
