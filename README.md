@@ -67,7 +67,26 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 ### Installation
 
 ```bash
+#Intall serverless Globally
+npm install -g serverless@3.40.0
+
+#Install Project Dependencies
 npm install
+```
+
+### Configure
+
+```bash
+#Configure AWS Credentials for Serverless
+serverless config credentials --provider aws --key YOUR_AWS_ACCESS_KEY_ID --secret YOUR_AWS_SECRET_ACCESS_KEY
+#NOTE: Information here is at the integreat-deployer_accessKeys.csv in the InteGreat's Google Drive Account || The Environments of this repository
+
+#Create and Configure .env File in root
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+AWS_REGION=ap-southeast-1
+SES_SENDER_EMAIL=your_verified_email@example.com
+#NOTE: Information here is at the .env file in the Integreat's Google Drive Account || The Environments of this repository
 ```
 
 ### Local Development
