@@ -1,39 +1,40 @@
 /**
  * AWS SDK Configuration
  * 
- * This file is a placeholder for future AWS SDK integration.
+ * This file configures AWS SDK v3 clients for various AWS services.
  * 
- * Current Implementation Status:
- * - In the current sprint, we are only using the Serverless Framework
- *   to manage AWS Lambda and API Gateway.
- * - No direct AWS SDK calls are being made in this sprint.
+ * Implementation Status:
+ * - Current Sprint: Implementing SES for email services
+ * - Future Sprint: Will add additional AWS services as needed
  * 
- * Future Plans:
- * - This file will be expanded in future sprints to include direct AWS SDK integrations.
- * - Potential AWS services that may be integrated include:
- *   - S3 for file storage
- *   - SES for email services
- *   - CloudWatch for logging
- *   - DynamoDB for additional data storage
- *   - SNS/SQS for messaging
- * 
- * When implementing AWS SDK in future sprints, we will configure
- * credentials and region settings in this file.
+ * AWS Services Integration:
+ * - SES for email services (implemented)
+ * - S3 for file storage (future)
+ * - CloudWatch for logging (future)
+ * - DynamoDB for additional data storage (future)
+ * - SNS/SQS for messaging (future)
  */
 
-// Import AWS SDK (commented out until needed)
-// import { S3, SES, CloudWatchLogs } from 'aws-sdk';
+// Import AWS SDK v3 clients
+import { SES } from "@aws-sdk/client-ses";
+import { env } from './env';
 
-// Placeholder for future AWS configuration
+// AWS configuration using validated environment variables
 export const awsConfig = {
-    // This will be populated in future sprints
-    region: process.env.AWS_REGION || 'ap-southeast-1',
-  };
-  
-  // Export placeholder for AWS service clients
-  export const awsServices = {
-    // These will be initialized in future sprints
-    // s3: null,
-    // ses: null,
-    // cloudWatch: null,
-  };
+  region: env.AWS_REGION,
+};
+
+// Initialize and export SES client
+export const sesClient = new SES({
+  region: awsConfig.region,
+  // AWS Lambda automatically uses credentials from the function's execution role
+  // If running locally, credentials will be loaded from ~/.aws/credentials or environment variables
+});
+
+// Export all AWS services in a single object for easier imports elsewhere
+export const awsServices = {
+  ses: sesClient,
+  // These will be initialized in future sprints
+  // s3: null,
+  // cloudWatch: null,
+};
