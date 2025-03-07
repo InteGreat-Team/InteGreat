@@ -12,32 +12,27 @@ Integreat is an API Gateway designed to facilitate communication between systems
 
 ## File Structure
 ```
-integreat@1.0.0 
-├── @aws-sdk/client-ses@3.758.0
-├── @serverless/typescript@3.38.0
-├── @supabase/supabase-js@2.49.1
-├── @types/aws-lambda@8.10.147
-├── @types/axios@0.9.36
-├── @types/cors@2.8.17
-├── @types/express@5.0.0
-├── @types/node@22.13.5
-├── @types/webpack-node-externals@3.0.4
-├── @types/webpack@5.28.5
-├── axios@1.8.1
-├── cors@2.8.5
-├── dotenv@16.4.7
-├── envalid@8.0.0
-├── express@4.21.2
-├── serverless-http@3.2.0
-├── serverless-offline@14.4.0
-├── serverless-plugin-dotenv@1.0.0
-├── serverless-webpack@5.15.0
-├── serverless@4.7.0
-├── ts-loader@9.5.2
-├── ts-node@10.9.2
-├── typescript@5.7.3
-├── webpack-node-externals@3.0.0
-└── webpack@5.98.0
+/integreat
+├── src/
+│   ├── config/             # Configuration files (e.g., environment variables, database settings)
+│   ├── controllers/        # Business logic for handling requests
+│   ├── middleware/         # Express middleware (e.g., authentication, logging, validation)
+│   ├── routes/             # Route definitions for API endpoints
+│   ├── services/           # Service layer for interacting with external APIs and databases
+│   ├── types/              # Type definitions (for TypeScript support)
+│   ├── utils/              # Utility functions and helpers
+│   ├── app.ts              # Express app entry point
+│   ├── lambda.ts           # Lambda function entry point
+├── .env                    # Environment variables
+├── .gitignore              # Git ignore file
+├── CONTEXT.md              # Project context file
+├── LICENSE                 # License file
+├── package-lock.json       # NPM lock file
+├── package.json            # Project metadata and dependencies
+├── README.md               # Documentation
+├── serverless.ts           # Serverless Framework configuration file
+├── tsconfig.json           # TypeScript compiler options
+└── webpack.config.ts       # Webpack configuration for bundling
 ```
 
 ## Deployment Strategy
@@ -68,7 +63,8 @@ To keep deployment options flexible, Integreat uses the **Serverless Framework**
 
 ## Installed Modules
 ```plaintext
-integreat@1.0.0 C:\Users\reyes\Documents\GitHub\InteGreat
+integreat@1.0.0
+├── @aws-sdk/client-ses@3.758.0
 ├── @serverless/typescript@3.38.0
 ├── @supabase/supabase-js@2.49.1
 ├── @types/aws-lambda@8.10.147
@@ -83,7 +79,6 @@ integreat@1.0.0 C:\Users\reyes\Documents\GitHub\InteGreat
 ├── dotenv@16.4.7
 ├── envalid@8.0.0
 ├── express@4.21.2
-├── mailersend@2.3.0
 ├── serverless-http@3.2.0
 ├── serverless-offline@14.4.0
 ├── serverless-plugin-dotenv@1.0.0
