@@ -15,6 +15,7 @@
  * - Environment Variables: Securely passes environment variables to Lambda functions
  * - API Gateway Integration: Creates RESTful API endpoints that trigger Lambda functions
  * - Local Development: Supports offline development and testing via serverless-offline
+ * - Prune: Automatically removes older versions of your deployed functions
  * 
  * This configuration enables continuous deployment of our Express application
  * to AWS Lambda with minimal configuration and maintenance overhead.
@@ -30,6 +31,7 @@ const serverlessConfiguration: AWS = {
     'serverless-webpack',
     'serverless-offline',
     'serverless-plugin-dotenv',
+    'serverless-prune-versions',
   ],
   provider: {
     name: 'aws',
@@ -80,6 +82,10 @@ const serverlessConfiguration: AWS = {
     individually: true,
   },
   custom: {
+    prune: {
+      automatic: true, 
+      number: 3         
+    },
     dotenv: {
       path: '.env'
     },

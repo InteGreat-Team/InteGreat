@@ -63,7 +63,8 @@ To keep deployment options flexible, Integreat uses the **Serverless Framework**
 
 ## Installed Modules
 ```plaintext
-integreat@1.0.0 C:\Users\reyes\Documents\GitHub\InteGreat
+integreat@1.0.0
+├── @aws-sdk/client-ses@3.758.0
 ├── @serverless/typescript@3.38.0
 ├── @supabase/supabase-js@2.49.1
 ├── @types/aws-lambda@8.10.147
@@ -78,12 +79,11 @@ integreat@1.0.0 C:\Users\reyes\Documents\GitHub\InteGreat
 ├── dotenv@16.4.7
 ├── envalid@8.0.0
 ├── express@4.21.2
-├── mailersend@2.3.0
 ├── serverless-http@3.2.0
-├── serverless-offline@14.4.0
+├── serverless-offline@13.9.0
 ├── serverless-plugin-dotenv@1.0.0
+├── serverless-prune-versions@1.0.4
 ├── serverless-webpack@5.15.0
-├── serverless@4.7.0
 ├── ts-loader@9.5.2
 ├── ts-node@10.9.2
 ├── typescript@5.7.3
