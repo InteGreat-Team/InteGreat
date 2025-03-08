@@ -35,8 +35,9 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 | Package | Version | Description |
 |---------|---------|-------------|
 | serverless | 3.40.0 | Serverless Framework CLI |
-| serverless-offline | 14.4.0 | Local development environment for Serverless |
+| serverless-offline | 13.9.0 | Local development environment for Serverless |
 | serverless-webpack | 5.15.0 | Webpack integration for Serverless |
+| serverless-prune-versions | 1.0.4 | Automatically prunes (removes) older deployment versions of your Lambda functions to reduce clutter on AWS |
 | serverless-plugin-dotenv | 1.0.0 | Loads .env files during Serverless deployment |
 | @serverless/typescript | 3.38.0 | TypeScript support for Serverless |
 
