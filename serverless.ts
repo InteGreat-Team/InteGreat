@@ -49,6 +49,13 @@ const serverlessConfiguration: AWS = {
           'ses:SendRawEmail'
         ],
         Resource: '*'
+      },
+      {
+        Effect: 'Allow',
+        Action: [
+          'sns:Publish'
+        ],
+        Resource: '*'
       }
     ],
     environment: {

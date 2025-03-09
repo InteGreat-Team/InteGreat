@@ -2,7 +2,6 @@ import { PublishCommand } from "@aws-sdk/client-sns";
 import { snsClient } from "../config/aws";
 import { EventDetails } from "../types/eventTypes";
 import { logTransaction } from "./eventServices";
-import { env } from "../config/env"; // Import validated env
 
 export async function sendEventNotification(
   event: EventDetails,
