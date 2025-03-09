@@ -24,6 +24,7 @@
 import express from 'express';
 import cors from 'cors';
 import { requestLogger } from './middleware/logger';
+import snsRoutes from './routes/snsRoutes';
 import emailRoutes from './routes/emailRoutes';
 import eventRoutes from './routes/eventRoutes';
 
@@ -42,6 +43,7 @@ app.get('/', (req, res) => {
 
 // Mount domain-specific route modules
 app.use('/api', emailRoutes);
+app.use('/api', snsRoutes);
 app.use('/api', eventRoutes);
 
 // Handle 404 errors for undefined routes
