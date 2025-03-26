@@ -63,9 +63,10 @@ To keep deployment options flexible, Integreat uses the **Serverless Framework**
 
 ## Installed Modules
 ```plaintext
-integreat@1.0.0 
+integreat@1.0.0
 ├── @aws-sdk/client-ses@3.758.0
 ├── @aws-sdk/client-sns@3.758.0
+├── @googlemaps/google-maps-services-js@3.4.0
 ├── @serverless/typescript@3.38.0
 ├── @supabase/supabase-js@2.49.1
 ├── @types/aws-lambda@8.10.147
