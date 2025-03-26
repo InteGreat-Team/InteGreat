@@ -27,6 +27,7 @@ import { requestLogger } from './middleware/logger';
 import snsRoutes from './routes/snsRoutes';
 import emailRoutes from './routes/emailRoutes';
 import eventRoutes from './routes/eventRoutes';
+import mapRoutes from './routes/mapRoutes'; // Add import for map routes
 
 // Initialize Express application
 const app = express();
@@ -45,6 +46,7 @@ app.get('/', (req, res) => {
 app.use('/api', emailRoutes);
 app.use('/api', snsRoutes);
 app.use('/api', eventRoutes);
+app.use('/api/maps', mapRoutes); // Mount map routes under /api/maps
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {

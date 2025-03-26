@@ -13,4 +13,5 @@ export const env = envalid.cleanEnv(process.env, {
     SUPABASE_KEY: str(),
     AWS_REGION: str({ default: 'ap-southeast-1' }),
     SES_SENDER_EMAIL: str({ default: 'integreatapi@gmail.com' }),
+    GOOGLE_MAPS_API_KEY: str(),
 });
