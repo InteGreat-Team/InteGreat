@@ -1,32 +1,32 @@
 /**
- * SNS Controller
+ * SMS Controller
  * 
- * This controller handles HTTP requests related to sending notifications via Amazon SNS.
- * It serves as the bridge between API routes and the underlying SNS service.
+ * This controller handles HTTP requests related to sending notifications via SMS.
+ * It serves as the bridge between API routes and the underlying SMS service.
  * 
  * Key Components:
  * - Request Validation: Ensures required fields are present
  * - Event Retrieval: Fetches event details using the event service
- * - SNS Notification: Publishes messages to SNS topics
+ * - SMS Notification: Sends messages using PHIL SMS service
  * - Response Handling: Returns appropriate HTTP status codes and JSON responses
  * 
  * Features:
  * - Input Validation: Validates eventId and recipientPhone before processing
  * - Error Handling: Provides specific error messages based on failure type
- * - Logging: Tracks SNS notification attempts and results
+ * - Logging: Tracks SMS notification attempts and results
  * - Status Codes: Returns semantic HTTP status codes (200, 400, 404, 500)
  * 
- * This controller supports the API Gateway integration with SNS notifications,
+ * This controller supports the API Gateway integration with SMS notifications,
  * ensuring proper request handling and response formatting.
  */
 
 import { Request, Response, NextFunction } from 'express';
 import { getEventDetails } from '../services/eventServices';
-import { sendEventNotification } from '../services/snsServices';
+import { sendEventNotification } from '../services/smsServices';
 
 export class SNSController {
   /**
-   * Send an SNS notification with event details
+   * Send an SMS notification with event details
    * 
    * @param req - Express request object containing eventId and recipientPhone
    * @param res - Express response object for returning HTTP responses
@@ -53,7 +53,7 @@ export class SNSController {
         return;
       }
 
-      // Send SNS notification
+      // Send SMS notification
       const notificationSent = await sendEventNotification(event, recipientPhone);
 
       // Handle notification sending failure

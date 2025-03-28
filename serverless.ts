@@ -49,13 +49,6 @@ const serverlessConfiguration: AWS = {
           'ses:SendRawEmail'
         ],
         Resource: '*'
-      },
-      {
-        Effect: 'Allow',
-        Action: [
-          'sns:Publish'
-        ],
-        Resource: '*'
       }
     ],
     environment: {
@@ -64,6 +57,8 @@ const serverlessConfiguration: AWS = {
       SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
       SUPABASE_URL: env.SUPABASE_URL,
       SUPABASE_KEY: env.SUPABASE_KEY,
+      PHIL_SMS_API_URL: env.PHIL_SMS_API_URL,
+      PHIL_SMS_API_KEY: env.PHIL_SMS_API_KEY,
     },
   },
   functions: {

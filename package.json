@@ -22,7 +22,6 @@
   "homepage": "https://github.com/HazelMaeBea/InteGreat#readme",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
-    "@aws-sdk/client-sns": "^3.758.0",
     "@supabase/supabase-js": "^2.49.1",
     "axios": "^1.8.1",
     "cors": "^2.8.5",

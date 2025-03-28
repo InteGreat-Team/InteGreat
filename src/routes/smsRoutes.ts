@@ -1,7 +1,7 @@
 /**
- * SNS Routes
+ * SMS Routes
  * 
- * This module defines API routes related to SMS notifications using AWS SNS.
+ * This module defines API routes related to SMS notifications using PHIL SMS.
  * It maps HTTP endpoints to their corresponding controller methods.
  * 
  * Available Routes:
@@ -23,14 +23,14 @@ import { SNSController } from "../controllers/snsController";
 const router = express.Router();
 
 /**
- * API Route: Send Event Details via SNS (SMS)
+ * API Route: Send Event Details via SMS
  * 
  * Endpoint: POST /api/send-notification
  * 
  * Request Body:
  * {
  *   "eventId": number,       // ID of the event to send
- *   "recipientPhone": string // Phone number of the recipient (E.164 format)
+ *   "recipientPhone": string // Phone number of the recipient
  * }
  * 
  * Responses:
@@ -41,4 +41,4 @@ const router = express.Router();
  */
 router.post("/send-notification", SNSController.sendNotification);
 
-export default router;
+export default router; 
