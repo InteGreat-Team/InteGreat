@@ -6,19 +6,14 @@
  */
 
 import axios from 'axios';
-import { env } from './env';
+import dotenv from 'dotenv';
 
-// PHIL SMS API configuration
-const philSmsConfig = {
-  baseURL: env.PHIL_SMS_API_URL,
-  apiKey: env.PHIL_SMS_API_KEY,
-};
+dotenv.config();
 
-// Create and export axios instance for PHIL SMS API
 export const philSmsClient = axios.create({
-  baseURL: philSmsConfig.baseURL,
+  baseURL: 'https://app.philsms.com/api/v3',
   headers: {
-    'Authorization': `Bearer ${philSmsConfig.apiKey}`,
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env.PHIL_SMS_API_KEY}`,
   },
-}); 
+});

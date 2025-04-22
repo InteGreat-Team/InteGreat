@@ -18,7 +18,7 @@
  */
 
 import express from "express";
-import { SNSController } from "../controllers/snsController";
+import { SNSController } from "../controllers/smsController";
 
 const router = express.Router();
 

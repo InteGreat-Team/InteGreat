@@ -35,38 +35,56 @@ export class SNSController {
    */
   public static async sendNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Extract required fields from request body
+      console.log('📨 Received SMS notification request:', req.body);
+
       const { eventId, recipientPhone } = req.body;
 
       // Validate required fields
       if (!eventId || !recipientPhone) {
-        res.status(400).json({ error: 'eventId and recipientPhone are required' });
-        return;
+        res.status(400).json({
+          error: "Missing required fields",
+          details: {
+            eventId: !eventId ? "Event ID is required" : undefined,
+            recipientPhone: !recipientPhone ? "Recipient phone number is required" : undefined
+          }
+        });
       }
 
-      // Fetch event details from database
+      // Get event details
       const event = await getEventDetails(eventId);
-
-      // Handle case when event is not found
       if (!event) {
-        res.status(404).json({ error: 'Event not found' });
-        return;
+        res.status(404).json({
+          error: "Event not found",
+          eventId
+        });
       }
 
-      // Send SMS notification
-      const notificationSent = await sendEventNotification(event, recipientPhone);
+      await sendEventNotification(event!, recipientPhone);
 
-      // Handle notification sending failure
-      if (!notificationSent) {
-        res.status(500).json({ error: 'Failed to send notification' });
-        return;
-      }
-
-      // Return success response
-      res.json({ message: 'Notification sent successfully' });
+      res.json({
+        message: "Notification sent successfully",
+        eventId,
+        recipientPhone
+      });
     } catch (error) {
-      // Forward unexpected errors to Express error handler
-      next(error);
+      console.error("❌ Error in sendNotification:", error);
+      
+      let errorDetails;
+      try {
+        errorDetails = JSON.parse((error as Error).message);
+      } catch {
+        errorDetails = {
+          message: (error as Error).message,
+          stack: (error as Error).stack
+        };
+      }
+
+      res.status(500).json({
+        error: "Failed to send notification",
+        eventId: req.body.eventId,
+        recipientPhone: req.body.recipientPhone,
+        details: errorDetails
+      });
     }
   }
 }
