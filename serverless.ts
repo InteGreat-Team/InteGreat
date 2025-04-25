@@ -64,6 +64,7 @@ const serverlessConfiguration: AWS = {
       SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
       SUPABASE_URL: env.SUPABASE_URL,
       SUPABASE_KEY: env.SUPABASE_KEY,
+      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
     },
   },
   functions: {
