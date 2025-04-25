@@ -116,11 +116,13 @@ The following architecture is designed for production-grade deployments using **
 │   ├── api-stack.ts        # Sets up API Gateway and Lambda integrations
 │   ├── storage-stack.ts    # Provisions S3 buckets for storage
 │   ├── iam-stack.ts        # Manages IAM Roles and policies
+│   ├── db-stack.ts         # Provisions and configures the NeonDB or database integration
 │   ├── monitoring-stack.ts # Configures monitoring and alarms (e.g., CloudWatch)
 ├── test/
 │   ├── auth-stack.test.ts  # Unit tests for the auth stack
 │   ├── api-stack.test.ts   # Unit tests for the API stack
 │   ├── storage-stack.test.ts # Unit tests for the storage stack
+│   ├── db-stack.test.ts    # Unit tests for the db stack
 ├── .env                    # Environment variables
 ├── .gitignore              # Git ignore file
 ├── cdk.context.json        # CDK-specific context configuration
