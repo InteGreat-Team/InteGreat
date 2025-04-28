@@ -1,23 +1,22 @@
-# Integreat Core
+# Integreat Core 🔄
 
 InteGreat is a comprehensive unified platform for application infrastructure management, API orchestration, and third-party service integration. It serves multiple applications including church management, events management, school lifecycle management, and pillars management, while providing centralized control over infrastructure, authentication, and data access.
 
-## Architecture Overview
+## Architecture Overview 🏗️
 
 InteGreat employs a dual architecture approach: a development environment using Serverless Framework v3 for testing and a production environment leveraging AWS CDK for robust infrastructure provisioning. The platform utilizes a modern serverless architecture with AWS Lambda and API Gateway at its core, while maintaining the flexibility to run on traditional servers. The codebase follows a clean separation of concerns to ensure modularity, scalability, and maintainability.
 
-## Features
+## Features ✨
 
--   **Centralized Infrastructure Management**: Provision and manage cloud resources via Infrastructure as Code (IaC)
--   **Multi-tenant Authentication**: Unified Cognito User Pool with app-specific user groups and IAM role restrictions
--   **Unified Storage Management**: Centralized S3 bucket with application-specific folders and access controls
--   **Database Multi-tenancy**: Isolated schema approach with app-specific access controls
--   **Third-Party API Integration**: Connect with external services for email (SES), SMS (PhilSMS), payment (Paymongo), and geolocation (Google Maps)
--   **Cross-Application Communication**: Enable secure data sharing between different systems
--   **Serverless Deployment**: Leverage AWS Lambda and API Gateway for automatic scaling and cost optimization
--   **Production-grade Monitoring**: Integrated CloudWatch for monitoring and alerting
--   **TypeScript Support**: Enhanced development experience with type safety
-
+-   **Centralized Infrastructure Management** 🛠️: Provision and manage cloud resources via Infrastructure as Code (IaC)
+-   **Multi-tenant Authentication** 🔐: Unified Cognito User Pool with app-specific user groups and IAM role restrictions
+-   **Storage Management** 📦: Separate S3 buckets for each application with dedicated access controls
+-   **Database Strategy** 🗄️: Dedicated database instances for each application ensuring optimal performance
+-   **Third-Party API Integration** 🔌: Connect with external services for email (SES), SMS (PhilSMS), payment (Paymongo), and geolocation (Google Maps)
+-   **Cross-Application Communication** 🔄: Enable secure data sharing between different systems
+-   **Serverless Deployment** ⚡: Leverage AWS Lambda and API Gateway for automatic scaling and cost optimization
+-   **Production-grade Monitoring** 📊: Integrated CloudWatch for monitoring and alerting
+-   **TypeScript Support** 📘: Enhanced development experience with type safety
 
 ## Table of Contents 📚
 - [Development Phase 🛠️](#development-phase-🛠️)
