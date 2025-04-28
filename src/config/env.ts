@@ -13,5 +13,10 @@ export const env = envalid.cleanEnv(process.env, {
     SUPABASE_KEY: str(),
     AWS_REGION: str({ default: 'ap-southeast-1' }),
     SES_SENDER_EMAIL: str({ default: 'integreatapi@gmail.com' }),
+    PHIL_SMS_API_URL: str({
+      default: 'https://app.philsms.com/api/v3',
+      desc: 'Base URL for PHIL SMS API'
+    }),
+    PHIL_SMS_API_KEY: str(),
     GOOGLE_MAPS_API_KEY: str(),
 });

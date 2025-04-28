@@ -24,7 +24,7 @@
 import express from 'express';
 import cors from 'cors';
 import { requestLogger } from './middleware/logger';
-import snsRoutes from './routes/snsRoutes';
+import smsRoutes from './routes/smsRoutes';
 import emailRoutes from './routes/emailRoutes';
 import eventRoutes from './routes/eventRoutes';
 import mapRoutes from './routes/mapRoutes'; // Add import for map routes
@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 
 // Mount domain-specific route modules
 app.use('/api', emailRoutes);
-app.use('/api', snsRoutes);
+app.use('/api', smsRoutes);
 app.use('/api', eventRoutes);
 app.use('/api/maps', mapRoutes); // Mount map routes under /api/maps
 
