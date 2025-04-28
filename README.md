@@ -19,20 +19,20 @@ InteGreat employs a dual architecture approach: a development environment using 
 -   **TypeScript Support** 📘: Enhanced development experience with type safety
 
 ## Table of Contents 📚
-- [Development Phase 🛠️](#development-phase-🛠️)
-  - [Hosting 🌐](#hosting-🌐)
-  - [Backend 🗄️](#backend-🗄️)
-  - [API Testing 🧪](#api-testing-🧪)
-  - [Serverless Framework Architecture 📂](#serverless-framework-architecture-📂)
-- [Production Phase 🏗️](#production-phase-🏗️)
-  - [Hosting 🌐](#hosting-🌐-1)
-  - [Backend Infrastructure 🛡️](#backend-infrastructure-🛡️)
-    - [Authentication 🔐](#authentication-🔐)
-    - [Storage 📦](#storage-📦)
-    - [Functions 🛠️](#functions-🛠️)
-    - [API Gateway 🌉](#api-gateway-🌉)
-  - [AWS CDK Architecture 🏗️](#aws-cdk-architecture-🏗️)
-- [Additional Notes 📝](#additional-notes-📝)
+- [Development Phase 🛠️](#development-phase-)
+  - [Hosting 🌐](#hosting-)
+  - [Backend 🗄️](#backend-)
+  - [API Testing 🧪](#api-testing-)
+  - [Serverless Framework Architecture 📂](#serverless-framework-architecture-)
+- [Production Phase 🏗️](#production-phase-)
+  - [Hosting 🌐](#hosting--1)
+  - [Backend Infrastructure 🛡️](#backend-infrastructure-)
+    - [Authentication 🔐](#authentication-)
+    - [Storage 📦](#storage-)
+    - [Functions 🛠️](#functions-)
+    - [API Gateway 🌉](#api-gateway-)
+  - [AWS CDK Architecture 🏗️](#aws-cdk-architecture-)
+- [Additional Notes 📝](#additional-notes-)
 
 ---
 
