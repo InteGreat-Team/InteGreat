@@ -156,6 +156,30 @@ cdk destroy --all
 cdk destroy ApiStack StorageStack
 ```
 
+## Useful Commands 🛠️
+
+Here are some common commands you'll use during CDK development:
+
+```bash
+# Compile TypeScript to JavaScript
+npm run build
+
+# Watch for changes and compile automatically
+npm run watch
+
+# Perform Jest unit tests
+npm run test
+
+# Deploy stack to your default AWS account/region
+npx cdk deploy
+
+# Compare deployed stack with current state
+npx cdk diff
+
+# Emit the synthesized CloudFormation template
+npx cdk synth
+```
+
 ## Best Practices 📝
 
 1. **Infrastructure as Code**: Always modify infrastructure through CDK, never manually in the AWS console
