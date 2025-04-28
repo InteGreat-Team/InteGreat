@@ -70,41 +70,5 @@ For production environments, Integreat utilizes **AWS CDK** to provision and mai
 
 AWS CDK ensures consistency, repeatability, and scalability in managing production infrastructure, reducing manual interventions and errors.
 
-## Local Development & Testing 🖥️
-- **Serverless-offline** is used for local testing ⚡
-- **AWS SDK** is used when Integreat is deployed locally 🛠️
-
-## Installed Modules 📦
-```plaintext
-integreat@1.0.0
-├── @aws-sdk/client-ses@3.758.0
-├── @aws-sdk/client-sns@3.758.0
-├── @googlemaps/google-maps-services-js@3.4.0
-├── @serverless/typescript@3.38.0
-├── @supabase/supabase-js@2.49.1
-├── @types/aws-lambda@8.10.147
-├── @types/axios@0.9.36
-├── @types/cors@2.8.17
-├── @types/express@5.0.0
-├── @types/node@22.13.5
-├── @types/webpack-node-externals@3.0.4
-├── @types/webpack@5.28.5
-├── axios@1.8.1
-├── cors@2.8.5
-├── dotenv@16.4.7
-├── envalid@8.0.0
-├── express@4.21.2
-├── serverless-http@3.2.0
-├── serverless-offline@13.9.0
-├── serverless-plugin-dotenv@1.0.0
-├── serverless-prune-versions@1.0.4
-├── serverless-webpack@5.15.0
-├── ts-loader@9.5.2
-├── ts-node@10.9.2
-├── typescript@5.7.3
-├── webpack-node-externals@3.0.0
-└── webpack@5.98.0
-```
-
 ## Note 📝
 Use this `context.md` file with GitHub Copilot for more relevant and accurate code suggestions.
