@@ -1,67 +1,80 @@
-# Integreat API Gateway
+# Integreat Platform 🚀
 
-## Overview
-Integreat is an API Gateway designed to facilitate communication between systems and third-party APIs (e.g., email and SMS services—these are just examples; specific services will be determined later). It follows the REST architecture, supporting HTTP methods like GET, POST, PUT, and DELETE.
+## Table of Contents 📚
+- [Overview](#overview-🌟)
+- [Applications Supported](#applications-supported-📱)
+- [Communication with Third-Party APIs](#communication-with-third-party-apis-🔗)
+- [Technologies Used](#technologies-used-🛠️)
+- [Production Strategy](#production-strategy-🏗️)
+  - [Serverless Production with AWS Lambda & API Gateway](#serverless-production-with-aws-lambda--api-gateway-🌐)
+  - [Infrastructure Provisioning with AWS CDK in Production](#infrastructure-provisioning-with-aws-cdk-in-production-🛡️)
+- [Local Development & Testing](#local-development--testing-🖥️)
+- [Installed Modules](#installed-modules-📦)
+- [Note](#note-📝)
 
-## Technologies Used
-- **Backend Framework**: Node.js, Express
-- **Database**: PostgreSQL, MongoDB (undecided)
-- **Cloud Services**: AWS Lambda, AWS API Gateway, AWS ECS
-- **Deployment Tool**: Serverless Framework
-- **Networking**: Ngrok (for temporary external access)
+---
 
-## File Structure
-```
-/integreat
-├── src/
-│   ├── config/             # Configuration files (e.g., environment variables, database settings)
-│   ├── controllers/        # Business logic for handling requests
-│   ├── middleware/         # Express middleware (e.g., authentication, logging, validation)
-│   ├── routes/             # Route definitions for API endpoints
-│   ├── services/           # Service layer for interacting with external APIs and databases
-│   ├── types/              # Type definitions (for TypeScript support)
-│   ├── utils/              # Utility functions and helpers
-│   ├── app.ts              # Express app entry point
-│   ├── lambda.ts           # Lambda function entry point
-├── .env                    # Environment variables
-├── .gitignore              # Git ignore file
-├── CONTEXT.md              # Project context file
-├── LICENSE                 # License file
-├── package-lock.json       # NPM lock file
-├── package.json            # Project metadata and dependencies
-├── README.md               # Documentation
-├── serverless.ts           # Serverless Framework configuration file
-├── tsconfig.json           # TypeScript compiler options
-└── webpack.config.ts       # Webpack configuration for bundling
-```
+## Overview 🌟
+Integreat is a unified platform for **API management**, **application infrastructure**, and **third-party API facilitation**. It supports seamless development and testing with **Serverless Framework v3** while provisioning production-grade architectures using **AWS CDK**. Integreat is designed to:
 
-## Deployment Strategy
-The tribe is currently deciding between two deployment options:
+- Centralize API routing 🚦
+- Enable cross-application communication 🔄
+- Integrate with third-party APIs 🔗
+- Manage robust, scalable application infrastructures via **Infrastructure as Code (IaC)** ⚙️
 
-1. **Hosting the Express App on AWS ECS with API Gateway**:
-   - Deploy the Express server as a containerized application on **AWS ECS (Elastic Container Service)**.
-   - API Gateway will be used as the main entry point, routing requests to the ECS service.
-   - Suitable for maintaining long-running connections, WebSockets, or session-based applications.
-   - Requires configuring ECS tasks, load balancing, auto-scaling, and networking.
-   
-2. **Using AWS Lambda & API Gateway**:
-   - The API Gateway routes requests to AWS Lambda functions.
-   - Fully serverless, eliminating the need for server maintenance.
-   - Scales automatically based on traffic demand.
-   - Reduces costs by only charging for actual usage.
+### Applications Supported 📱
+- **Church Management**
+- **Event Management**
+- **Student Lifecycle Management**
+- **Pillars Management**
 
-### Flexibility with Serverless Framework
-To keep deployment options flexible, Integreat uses the **Serverless Framework** along with `serverless-http`, allowing the API to run in both environments seamlessly. The architecture enables:
-- **Serverless Deployment:** Direct deployment to AWS Lambda.
-- **Containerized Deployment:** Running the Express server as a containerized service on AWS ECS while keeping API Gateway as the entry point.
-- **Hybrid Approach:** If needed, a mix of both options can be implemented for different API routes.
+### Communication with Third-Party APIs 🔗
+- **Email**: SES 📧
+- **SMS**: PhilSMS 📱
+- **Payment**: Paymongo 💰
+- **Geolocation**: Gmaps API 🗺️
+  - Places API
+  - JavaScript Maps API
+  - Geocoding API
 
-## Local Development & Testing
-- **Serverless-offline** is used for local testing.
-- **AWS SDK** is used when Integreat is deployed locally.
-- **Ngrok** is used to expose local instances to external systems when needed.
+## Technologies Used 🛠️
+- **Backend Framework**: Node.js, Express 🖥️
+- **Database**: NeonDB 🗄️
+- **Cloud Services**:
+  - **AWS Lambda** 🛠️
+  - **AWS API Gateway** 🌐
+  - **AWS Cognito**: For centralized authentication management 🔒
+  - **AWS S3 Bucket**: For storage needs 📦
+- **Analytics**: Power BI 📊
+- **Development & Testing**: Serverless Framework v3 ⚙️
+- **Production**: AWS CDK 🏗️
 
-## Installed Modules
+## Production Strategy 🏗️
+To ensure scalability, efficiency, and high availability, Integreat employs a **serverless production strategy**, leveraging AWS Lambda and API Gateway as the backbone for its runtime architecture.
+
+### Serverless Production with AWS Lambda & API Gateway 🌐
+- **API Gateway** is configured as the primary entry point for all production traffic.
+- Requests are processed by **AWS Lambda** functions, which execute the business and application logic.
+- Key production benefits include:
+  - **Automatic Scalability**: Seamlessly handles increased traffic during peak times 📈
+  - **Cost-Effectiveness**: Costs are incurred only for actual usage, reducing unnecessary expenses 💵
+  - **High Availability**: Ensures consistent uptime with a globally distributed and fault-tolerant architecture 🌎
+
+This production strategy aligns with Integreat's vision of delivering a robust and centralized platform for API management and infrastructure.
+
+### Infrastructure Provisioning with AWS CDK in Production 🛡️
+For production environments, Integreat utilizes **AWS CDK** to provision and maintain critical cloud resources:
+- **AWS Cognito**: Manages authentication and user identity across applications 🔒
+- **IAM Roles**: Provides secure and granular access permissions for production applications and services 🔑
+- **S3 Buckets**: Centralized storage for production assets and application-specific data 📂
+
+AWS CDK ensures consistency, repeatability, and scalability in managing production infrastructure, reducing manual interventions and errors.
+
+## Local Development & Testing 🖥️
+- **Serverless-offline** is used for local testing ⚡
+- **AWS SDK** is used when Integreat is deployed locally 🛠️
+
+## Installed Modules 📦
 ```plaintext
 integreat@1.0.0
 ├── @aws-sdk/client-ses@3.758.0
@@ -93,5 +106,5 @@ integreat@1.0.0
 └── webpack@5.98.0
 ```
 
-## Note
+## Note 📝
 Use this `context.md` file with GitHub Copilot for more relevant and accurate code suggestions.

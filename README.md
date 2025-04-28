@@ -1,114 +1,169 @@
-# InteGreat API Engine
+# Integreat Core 🔄
 
-InteGreat is a flexible API Engine that serves as a centralized gateway for multiple applications such as church management, events management, and school lifecycle management. It provides third-party API integration capabilities and facilitates inter-application communication.
+InteGreat is a comprehensive unified platform for application infrastructure management, API orchestration, and third-party service integration. It serves multiple applications including church management, events management, school lifecycle management, and pillars management, while providing centralized control over infrastructure, authentication, and data access.
 
-## Architecture Overview
+## Architecture Overview 🏗️
 
-InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway, while maintaining flexibility to run on traditional servers. The codebase is designed with a clean separation of concerns to support modularity and scalability.
+InteGreat employs a dual architecture approach: a development environment using Serverless Framework v3 for testing and a production environment leveraging AWS CDK for robust infrastructure provisioning. The platform utilizes a modern serverless architecture with AWS Lambda and API Gateway at its core, while maintaining the flexibility to run on traditional servers. The codebase follows a clean separation of concerns to ensure modularity, scalability, and maintainability.
 
-## Features
+## Features ✨
 
--   **Centralized API Management**: Single point of access for multiple applications
--   **Third-Party API Integration**: Connect with external services seamlessly
--   **Inter-Application Communication**: Enable data sharing between different systems
--   **Serverless Deployment**: Leverage AWS Lambda for scaling and cost optimization
--   **Flexible Deployment Options**: Seamlessly transition to traditional servers when needed
--   **TypeScript Support**: Enhanced development experience with type safety
+-   **Centralized Infrastructure Management** 🛠️: Provision and manage cloud resources via Infrastructure as Code (IaC)
+-   **Multi-tenant Authentication** 🔐: Unified Cognito User Pool with app-specific user groups and IAM role restrictions
+-   **Storage Management** 📦: Separate S3 buckets for each application with dedicated access controls
+-   **Database Strategy** 🗄️: Dedicated database instances for each application ensuring optimal performance
+-   **Third-Party API Integration** 🔌: Connect with external services for email (SES), SMS (PhilSMS), payment (Paymongo), and geolocation (Google Maps)
+-   **Cross-Application Communication** 🔄: Enable secure data sharing between different systems
+-   **Serverless Deployment** ⚡: Leverage AWS Lambda and API Gateway for automatic scaling and cost optimization
+-   **Production-grade Monitoring** 📊: Integrated CloudWatch for monitoring and alerting
+-   **TypeScript Support** 📘: Enhanced development experience with type safety
 
-## Dependencies
+## Table of Contents 📚
+- [Development Phase 🛠️](#development-phase-🛠️)
+  - [Hosting 🌐](#hosting-🌐)
+  - [Backend 🗄️](#backend-🗄️)
+  - [API Testing 🧪](#api-testing-🧪)
+  - [Serverless Framework Architecture 📂](#serverless-framework-architecture-📂)
+- [Production Phase 🏗️](#production-phase-🏗️)
+  - [Hosting 🌐](#hosting-🌐-1)
+  - [Backend Infrastructure 🛡️](#backend-infrastructure-🛡️)
+    - [Authentication 🔐](#authentication-🔐)
+    - [Storage 📦](#storage-📦)
+    - [Functions 🛠️](#functions-🛠️)
+    - [API Gateway 🌉](#api-gateway-🌉)
+  - [AWS CDK Architecture 🏗️](#aws-cdk-architecture-🏗️)
+- [Additional Notes 📝](#additional-notes-📝)
 
-### Core Dependencies
+---
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| express | 4.21.2 | Web framework for handling HTTP requests and routing |
-| @supabase/supabase-js | 2.49.1 | Supabase client for database operations |
-| @aws-sdk/client-ses | 3.758.0 | AWS SDK v3 client for Simple Email Service (SES) |
-| @googlemaps/google-maps-services-js | ^3.3.36 | Google Maps services client for Node.js |
-| @aws-sdk/client-sns | 3.758.0 | AWS SDK v3 client for Simple Notification Service (SNS) |
-| axios | 1.8.1 | HTTP client for making API requests |
-| cors | 2.8.5 | Middleware to enable CORS (Cross-Origin Resource Sharing) |
-| dotenv | 16.4.7 | Loads environment variables from .env files |
-| envalid | 8.0.0 | Environment variable validation |
-| serverless-http | 3.2.0 | Adapter to run Express apps on AWS Lambda |
+## Development Phase 🛠️
 
-### Serverless Framework
+### Hosting 🌐
+- **AWS Amplify Hosting**: Used for hosting the frontend of each application during the development phase.
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| serverless | 3.40.0 | Serverless Framework CLI |
-| serverless-offline | 13.9.0 | Local development environment for Serverless |
-| serverless-webpack | 5.15.0 | Webpack integration for Serverless |
-| serverless-prune-versions | 1.0.4 | Automatically prunes (removes) older deployment versions of your Lambda functions to reduce clutter on AWS |
-| serverless-plugin-dotenv | 1.0.0 | Loads .env files during Serverless deployment |
-| @serverless/typescript | 3.38.0 | TypeScript support for Serverless |
+### Backend 🗄️
+- **AWS Amplify Backend Gen 2**:
+  - **Authentication 🔐**: Managed through AWS Cognito.
+  - **Storage 📦**: AWS S3 is used for file and asset storage.
+  - **Functions 🛠️**: AWS Lambda handles serverless functions.
+  - **Database 🗃️**: Neon DB is used as the primary database.
 
-### TypeScript & Build Tools
+### API Testing 🧪
+- During the development phase, APIs are temporarily deployed using **Serverless Framework v3** and run on AWS Lambda.
+- This approach allows early-stage integration and routing tests without requiring the full production infrastructure.
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| typescript | 5.7.3 | TypeScript language and compiler |
-| ts-loader | 9.5.2 | TypeScript loader for webpack |
-| webpack | 5.98.0 | Module bundler for JavaScript applications |
-| webpack-node-externals | 3.0.0 | Excludes node_modules from webpack bundles |
-| ts-node | 10.9.1 | TypeScript execution environment for Node.js |
+> **Note**: Each app is developed and hosted under its own AWS account. This setup allows teams to configure their backend independently during development. These configurations are later used as blueprints for provisioning the production infrastructure.
 
-### Type Definitions
+---
 
-| Package                       | Version  | Description                                       |
-| ----------------------------- | -------- | ------------------------------------------------- |
-| @types/node                   | 22.13.5  | TypeScript definitions for Node.js                |
-| @types/express                | 5.0.0    | TypeScript definitions for Express                |
-| @types/aws-lambda             | 8.10.147 | TypeScript definitions for AWS Lambda             |
-| @types/cors                   | 2.8.17   | TypeScript definitions for cors                   |
-| @types/axios                  | 0.9.36   | TypeScript definitions for axios                  |
-| @types/webpack                | 5.28.5   | TypeScript definitions for webpack                |
-| @types/webpack-node-externals | 3.0.4    | TypeScript definitions for webpack-node-externals |
+### Serverless Framework Architecture 📂
+The following file structure represents the architecture used with the **Serverless Framework**. This architecture is designed to simplify local development and testing while enabling seamless deployment to AWS Lambda and API Gateway.
 
-## Getting Started
-
-### Installation
-
-```bash
-#Intall serverless Globally
-npm install -g serverless@3.40.0
-
-#Install Project Dependencies
-npm install
+```
+/integreat
+├── src/
+│   ├── config/             # Configuration files (e.g., environment variables, database settings)
+│   ├── controllers/        # Business logic for handling requests
+│   ├── middleware/         # Express middleware (e.g., authentication, logging, validation)
+│   ├── routes/             # Route definitions for API endpoints
+│   ├── services/           # Service layer for interacting with external APIs and databases
+│   ├── types/              # Type definitions (for TypeScript support)
+│   ├── utils/              # Utility functions and helpers
+│   ├── app.ts              # Express app entry point
+│   ├── lambda.ts           # Lambda function entry point
+├── .env                    # Environment variables
+├── .gitignore              # Git ignore file
+├── CONTEXT.md              # Project context file
+├── LICENSE                 # License file
+├── package-lock.json       # NPM lock file
+├── package.json            # Project metadata and dependencies
+├── README.md               # Documentation
+├── serverless.ts           # Serverless Framework configuration file
+├── tsconfig.json           # TypeScript compiler options
+└── webpack.config.ts       # Webpack configuration for bundling
 ```
 
-### Configure
+This structure is optimized for serverless deployment, providing a clear separation of concerns for configuration, business logic, middleware, and utilities.
 
-```bash
-#Configure AWS Credentials for Serverless
-serverless config credentials --provider aws --key YOUR_AWS_ACCESS_KEY_ID --secret YOUR_AWS_SECRET_ACCESS_KEY
-#NOTE: Information here is at the integreat-deployer_accessKeys.csv in the InteGreat's Google Drive Account || The Environments of this repository
+---
 
-#Create and Configure .env File in root
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-AWS_REGION=ap-southeast-1
-SES_SENDER_EMAIL=your_verified_email@example.com
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-#NOTE: Information here is at the .env file in the Integreat's Google Drive Account || The Environments of this repository
+## Production Phase 🏗️
+
+### Hosting 🌐
+- **AWS Amplify Hosting**: Applications are deployed under Integreat’s centralized AWS account for production.
+
+### Backend Infrastructure 🛡️
+Integreat provisions and manages the production infrastructure using **Infrastructure as Code (IaC)**, ensuring consistency and scalability.
+
+#### Authentication 🔐
+- Centralized authentication is managed via **AWS Cognito**.
+- A single Cognito User Pool is used, with user groups representing individual apps (e.g., church, events, students).
+- **IAM Roles** are assigned to each group to restrict access, ensuring users can only access resources relevant to their app.
+- Integreat retains administrative access to all resources.
+
+#### Storage 📦
+- **Separate S3 buckets** are now used for each application (e.g., `church-storage`, `events-storage`, `student-storage`).
+- This approach provides improved isolation, security, and performance optimization per application.
+- **IAM Roles** are configured to restrict access so that applications can only interact with their designated buckets.
+- Integreat maintains administrative access across all buckets for centralized management.
+
+#### Functions 🛠️
+- **Separate NeonDB instances** are now used for each application, providing dedicated databases (e.g., `church-db`, `events-db`, `student-db`).
+- This approach offers improved cost-efficiency, performance isolation, and simplified management 
+- **Database Connections**:
+  - Applications connect only to their own dedicated database.
+  - Integreat maintains connection capabilities to all databases for cross-application data coordination and management.
+
+#### API Gateway 🌉
+- All cross-app communication and third-party API integrations flow through Integreat’s centralized **API Gateway**.
+- The API Gateway is protected by **IAM Roles** and authorization policies.
+- Access to endpoints is restricted based on app and user group permissions.
+
+---
+
+### AWS CDK Architecture 🏗️
+The following architecture is designed for production-grade deployments using **AWS CDK** (Cloud Development Kit). It focuses on Infrastructure as Code (IaC) to provision and manage cloud resources efficiently.
+
+```
+/cdk
+├── bin/
+│   ├── cdk.ts              # Entry point for the CDK application
+├── lib/
+│   ├── auth-stack.ts       # Defines AWS Cognito configuration for authentication
+│   ├── api-stack.ts        # Sets up API Gateway and Lambda integrations
+│   ├── storage-stack.ts    # Provisions S3 buckets for storage
+│   ├── iam-stack.ts        # Manages IAM Roles and policies
+│   ├── db-stack.ts         # Provisions and configures the NeonDB or database integration
+│   ├── monitoring-stack.ts # Configures monitoring and alarms (e.g., CloudWatch)
+├── functions/
+│   ├── index.ts            # Main export file for all Lambda handlers
+│   ├── handlers/           # Lambda handlers organized by domain replaced controllers
+├── shared/
+│   ├── services/           # Business logic used by multiple handlers
+│   ├── config/             # Configuration files
+│   ├── types/              # Type definitions
+│   ├── utils/              # Shared utilities like logging
+│   │   ├── logger.ts       # Logging utility (adapted from middleware)
+├── .env                    # Environment variables
+├── .gitignore              # Git ignore file
+├── cdk.context.json        # CDK-specific context configuration
+├── cdk.json                # CDK application metadata
+├── package-lock.json       # NPM lock file
+├── package.json            # Project metadata and dependencies
+├── README.md               # Documentation
+├── tsconfig.json           # TypeScript compiler options
 ```
 
-### Local Development
+### Highlights of the AWS CDK Architecture 🏗️
+1. **Stacks**: Each stack represents a specific domain in the application, such as authentication (`auth-stack.ts`), API management (`api-stack.ts`), storage (`storage-stack.ts`), and IAM roles (`iam-stack.ts`).
+2. **Infrastructure as Code (IaC)**: AWS CDK automates the provisioning and management of AWS resources, ensuring consistency and scalability.
+3. **Testing 🧪**: Validate infrastructure and API endpoints locally using the **AWS SAM CLI** (`sam local start-api`).
+4. **Monitoring 👀**: Integrates CloudWatch for monitoring and alerting in production environments.
 
-```bash
-# Start serverless offline for local development
-npm run dev
+This architecture ensures a robust, scalable, and maintainable production environment.
 
-# Or use the serverless CLI directly
-serverless offline start
-```
+---
 
-### Deployment
-
-```bash
-# Deploy to AWS
-npm run deploy
-
-# Or use the serverless CLI directly
-serverless deploy
-```
+## Additional Notes 📝
+- The architecture leverages **AWS CDK** for provisioning and managing production infrastructure.
+- This ensures scalability, security, and consistency across all applications hosted under Integreat.
