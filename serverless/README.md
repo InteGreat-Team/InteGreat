@@ -25,7 +25,6 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 | @supabase/supabase-js | 2.49.1 | Supabase client for database operations |
 | @aws-sdk/client-ses | 3.758.0 | AWS SDK v3 client for Simple Email Service (SES) |
 | @googlemaps/google-maps-services-js | ^3.3.36 | Google Maps services client for Node.js |
-| @aws-sdk/client-sns | 3.758.0 | AWS SDK v3 client for Simple Notification Service (SNS) |
 | axios | 1.8.1 | HTTP client for making API requests |
 | cors | 2.8.5 | Middleware to enable CORS (Cross-Origin Resource Sharing) |
 | dotenv | 16.4.7 | Loads environment variables from .env files |
