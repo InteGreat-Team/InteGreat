@@ -59,6 +59,7 @@ const serverlessConfiguration: AWS = {
       SUPABASE_KEY: env.SUPABASE_KEY,
       PHIL_SMS_API_URL: env.PHIL_SMS_API_URL,
       PHIL_SMS_API_KEY: env.PHIL_SMS_API_KEY,
+      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
     },
   },
   functions: {

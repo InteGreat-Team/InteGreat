@@ -24,6 +24,7 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 | express | 4.21.2 | Web framework for handling HTTP requests and routing |
 | @supabase/supabase-js | 2.49.1 | Supabase client for database operations |
 | @aws-sdk/client-ses | 3.758.0 | AWS SDK v3 client for Simple Email Service (SES) |
+| @googlemaps/google-maps-services-js | ^3.3.36 | Google Maps services client for Node.js |
 | @aws-sdk/client-sns | 3.758.0 | AWS SDK v3 client for Simple Notification Service (SNS) |
 | axios | 1.8.1 | HTTP client for making API requests |
 | cors | 2.8.5 | Middleware to enable CORS (Cross-Origin Resource Sharing) |
@@ -88,6 +89,7 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_key
 AWS_REGION=ap-southeast-1
 SES_SENDER_EMAIL=your_verified_email@example.com
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 #NOTE: Information here is at the .env file in the Integreat's Google Drive Account || The Environments of this repository
 ```
 

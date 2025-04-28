@@ -18,4 +18,5 @@ export const env = envalid.cleanEnv(process.env, {
       desc: 'Base URL for PHIL SMS API'
     }),
     PHIL_SMS_API_KEY: str(),
+    GOOGLE_MAPS_API_KEY: str(),
 });
