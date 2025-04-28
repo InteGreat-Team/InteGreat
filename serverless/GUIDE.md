@@ -1,21 +1,79 @@
-# InteGreat API Engine
+# InteGreat Serverless Development Guide 🛠️
 
-InteGreat is a flexible API Engine that serves as a centralized gateway for multiple applications such as church management, events management, and school lifecycle management. It provides third-party API integration capabilities and facilitates inter-application communication.
+This guide explains how to use the serverless development environment for InteGreat platform.
 
-## Architecture Overview
+## Overview 📋
 
-InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway, while maintaining flexibility to run on traditional servers. The codebase is designed with a clean separation of concerns to support modularity and scalability.
+This repository contains the development version of InteGreat using Serverless Framework v3. It's designed for local development and testing before deploying to production using AWS CDK.
 
-## Features
+## Getting Started 🚀
 
--   **Centralized API Management**: Single point of access for multiple applications
--   **Third-Party API Integration**: Connect with external services seamlessly
--   **Inter-Application Communication**: Enable data sharing between different systems
--   **Serverless Deployment**: Leverage AWS Lambda for scaling and cost optimization
--   **Flexible Deployment Options**: Seamlessly transition to traditional servers when needed
--   **TypeScript Support**: Enhanced development experience with type safety
+### Prerequisites
 
-## Dependencies
+- Node.js (v18 or later)
+- AWS Account with appropriate permissions
+- Serverless Framework CLI (v3.40.0)
+
+### Installation 📥
+
+```bash
+# Install serverless globally
+npm install -g serverless@3.40.0
+
+# Install project dependencies
+npm install
+```
+
+### Configuration ⚙️
+
+```bash
+# Configure AWS Credentials for Serverless
+serverless config credentials --provider aws --key YOUR_AWS_ACCESS_KEY_ID --secret YOUR_AWS_SECRET_ACCESS_KEY
+# NOTE: Access keys can be found in the integreat-deployer_accessKeys.csv in InteGreat's Google Drive
+
+# Create and configure .env file in root
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+AWS_REGION=ap-southeast-1
+SES_SENDER_EMAIL=your_verified_email@example.com
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+# NOTE: Environment values can be found in the .env file in InteGreat's Google Drive
+```
+
+### Local Development 💻
+
+```bash
+# Start serverless offline for local development
+npm run dev
+
+# Or use the serverless CLI directly
+serverless offline start
+```
+
+### Deployment 🚢
+
+```bash
+# Deploy to AWS (Development only)
+npm run deploy
+
+# Or use the serverless CLI directly
+serverless deploy
+```
+
+## Project Structure 📁
+
+- `src/`: Source code for the application
+  - `app.ts`: Express application entry point
+  - `lambda.ts`: AWS Lambda handler
+  - `config/`: Configuration files for external services
+  - `controllers/`: Business logic for handling requests
+  - `middleware/`: Express middleware (authentication, logging, etc.)
+  - `routes/`: API route definitions
+  - `services/`: Service layer for external APIs and databases
+  - `types/`: TypeScript type definitions
+  - `utils/`: Utility functions and helpers
+
+## Dependencies 📦
 
 ### Core Dependencies
 
@@ -38,7 +96,7 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 | serverless | 3.40.0 | Serverless Framework CLI |
 | serverless-offline | 13.9.0 | Local development environment for Serverless |
 | serverless-webpack | 5.15.0 | Webpack integration for Serverless |
-| serverless-prune-versions | 1.0.4 | Automatically prunes (removes) older deployment versions of your Lambda functions to reduce clutter on AWS |
+| serverless-prune-versions | 1.0.4 | Automatically prunes older Lambda function versions |
 | serverless-plugin-dotenv | 1.0.0 | Loads .env files during Serverless deployment |
 | @serverless/typescript | 3.38.0 | TypeScript support for Serverless |
 
@@ -63,51 +121,3 @@ InteGreat uses a modern serverless architecture with AWS Lambda and API Gateway,
 | @types/axios                  | 0.9.36   | TypeScript definitions for axios                  |
 | @types/webpack                | 5.28.5   | TypeScript definitions for webpack                |
 | @types/webpack-node-externals | 3.0.4    | TypeScript definitions for webpack-node-externals |
-
-## Getting Started
-
-### Installation
-
-```bash
-#Intall serverless Globally
-npm install -g serverless@3.40.0
-
-#Install Project Dependencies
-npm install
-```
-
-### Configure
-
-```bash
-#Configure AWS Credentials for Serverless
-serverless config credentials --provider aws --key YOUR_AWS_ACCESS_KEY_ID --secret YOUR_AWS_SECRET_ACCESS_KEY
-#NOTE: Information here is at the integreat-deployer_accessKeys.csv in the InteGreat's Google Drive Account || The Environments of this repository
-
-#Create and Configure .env File in root
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-AWS_REGION=ap-southeast-1
-SES_SENDER_EMAIL=your_verified_email@example.com
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-#NOTE: Information here is at the .env file in the Integreat's Google Drive Account || The Environments of this repository
-```
-
-### Local Development
-
-```bash
-# Start serverless offline for local development
-npm run dev
-
-# Or use the serverless CLI directly
-serverless offline start
-```
-
-### Deployment
-
-```bash
-# Deploy to AWS
-npm run deploy
-
-# Or use the serverless CLI directly
-serverless deploy
-```
