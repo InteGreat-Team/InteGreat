@@ -17,7 +17,6 @@
 
 // Import AWS SDK v3 clients
 import { SES } from "@aws-sdk/client-ses";
-import { SNS } from "@aws-sdk/client-sns";
 import { env } from './env';
 
 // AWS configuration using validated environment variables
@@ -32,15 +31,9 @@ export const sesClient = new SES({
   // If running locally, credentials will be loaded from ~/.aws/credentials or environment variables
 });
 
-// Initialize and export SNS client
-export const snsClient = new SNS({
-  region: awsConfig.region,
-});
-
 // Export all AWS services in a single object for easier imports elsewhere
 export const awsServices = {
   ses: sesClient,
-  sns: snsClient,
   // These will be initialized in future sprints
   // s3: null,
   // cloudWatch: null,
