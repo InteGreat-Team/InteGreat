@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Integreat API Stack (.env-based local dev)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        SUPABASE_URL: !Ref SupabaseUrl
+        SUPABASE_KEY: !Ref SupabaseKey
+        PHIL_SMS_API_URL: !Ref PhilSmsApiUrl
+        PHIL_SMS_API_KEY: !Ref PhilSmsApiKey
+        SES_SENDER_EMAIL: !Ref SesEmailSender
+        NODE_ENV: production
+
+Resources:
+  EmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: functions/handlers/emailHandler.handler
+      Events:
+        EmailApi:
+          Type: Api
+          Properties:
+            Path: /email/send
+            Method: post
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+
+  SmsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: functions/handlers/smsHandler.handler
+      Events:
+        SmsApi:
+          Type: Api
+          Properties:
+            Path: /sms/send
+            Method: post
+            Auth:
+              Authorizer: NONE
