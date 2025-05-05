@@ -1,20 +1,63 @@
-// #!/usr/bin/env node
-// import * as cdk from 'aws-cdk-lib';
-// import { CdkStack } from '../lib/cdk-stack';
+import * as cdk from 'aws-cdk-lib';
+import { AuthStack }  from '../lib/auth-stack';
+import { StorageStack } from '../lib/storage-stack';
+import { IamStack }    from '../lib/iam-stack';
 
-// const app = new cdk.App();
-// new CdkStack(app, 'CdkStack', {
-//   /* If you don't specify 'env', this stack will be environment-agnostic.
-//    * Account/Region-dependent features and context lookups will not work,
-//    * but a single synthesized template can be deployed anywhere. */
+const app = new cdk.App();
 
-//   /* Uncomment the next line to specialize this stack for the AWS Account
-//    * and Region that are implied by the current CLI configuration. */
-//   // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+// Set environment configuration with ap-southeast-1 region
+const env = { 
+  region: 'ap-southeast-1',
+  account: process.env.CDK_DEFAULT_ACCOUNT
+};
 
-//   /* Uncomment the next line if you know exactly what Account and Region you
-//    * want to deploy the stack to. */
-//   // env: { account: '123456789012', region: 'us-east-1' },
+/**
+ * MULTI-TENANT ARCHITECTURE OVERVIEW
+ * ==================================
+ * 
+ * This CDK app creates a complete multi-tenant infrastructure where each tenant/project
+ * has its own isolated stack of AWS resources:
+ * 
+ * 1. Each tenant gets its own Cognito Identity Pool connected to Firebase Auth
+ * 2. Each tenant gets its own S3 bucket for storing files
+ * 3. Each tenant gets its own IAM role with permissions scoped only to their bucket
+ * 
+ * This approach ensures complete isolation between tenants while using a consistent
+ * infrastructure pattern that can scale to any number of tenants.
+ */
 
-//   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-// });
+// List of tenant project IDs - each represents a separate Firebase project
+// and will receive its own isolated AWS resources
+const tenants = [
+  'evntgarde-event-management',
+  'pillars-edu-quality-assessor',
+  'teleo-church-application',
+  'campus-student-lifecycle',
+];
+
+// For each tenant, create a complete set of infrastructure resources
+for (const projectId of tenants) {
+  // Authentication Stack (Cognito Identity Pool)
+  // This enables Firebase JWT tokens to be exchanged for temporary AWS credentials
+  const auth = new AuthStack(app, `${projectId}-auth`, { 
+        projectId,
+        env,
+    });
+
+  // Storage Stack (S3 Bucket)
+  // Creates an isolated bucket for this tenant with appropriate CORS settings
+  const storage = new StorageStack(app, `${projectId}-storage`, {
+        projectId,
+        env,
+    });
+
+  // IAM Stack (Roles and Permissions)
+  // Sets up the role and permissions that authenticated users from this tenant will assume
+  // when accessing AWS resources (specifically their tenant's S3 bucket)
+  new IamStack(app, `${projectId}-iam`, {
+    authStack: auth,
+    projectId,
+    bucketArn: storage.bucket.bucketArn,
+    env,
+  });
+}
