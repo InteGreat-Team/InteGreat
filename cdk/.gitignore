@@ -2,6 +2,7 @@
 !jest.config.js
 *.d.ts
 node_modules
+.env
 
 # CDK asset staging directory
 .cdk.staging
@@ -53,3 +54,4 @@ docker-compose.override.yml
 *.tmp
 *.temp
 .temp/
+
