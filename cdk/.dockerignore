@@ -1,0 +1,61 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Build outputs
+cdk.out/
+dist/
+*.js
+*.d.ts
+.cdk.staging/
+.aws-sam/
+
+# Keep essential JavaScript files
+!jest.config.js
+
+# Dependencies - will be installed in the container
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment files and secrets
+.env
+.env.local
+env.json
+*.pem
+*.key
+
+# Docker files - no need to copy these into the Docker image
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# Development and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage and testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# Logs
+logs/
+*.log
+
+# AWS credentials that might be accidentally stored
+.aws/
+credentials
