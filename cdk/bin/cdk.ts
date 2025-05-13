@@ -49,27 +49,24 @@ const tenants = [
   'pillars-edu-quality-assessor',
   'teleo-church-application',
   'campus-student-lifecycle',
+  'integreat-core'
 ];
 
 // For each tenant, create a complete set of infrastructure resources
 for (const projectId of tenants) {
   // Authentication Stack (Cognito Identity Pool)
-  // This enables Firebase JWT tokens to be exchanged for temporary AWS credentials
   const auth = new AuthStack(app, `${projectId}-auth`, { 
     projectId,
     env,
   });
 
   // Storage Stack (S3 Bucket)
-  // Creates an isolated bucket for this tenant with appropriate CORS settings
   const storage = new StorageStack(app, `${projectId}-storage`, {
     projectId,
     env,
   });
 
   // IAM Stack (Roles and Permissions)
-  // Sets up the role and permissions that authenticated users from this tenant will assume
-  // when accessing AWS resources (specifically their tenant's S3 bucket)
   new IamStack(app, `${projectId}-iam`, {
     authStack: auth,
     projectId,
@@ -77,4 +74,3 @@ for (const projectId of tenants) {
     env,
   });
 }
-
