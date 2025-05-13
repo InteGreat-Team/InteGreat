@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
@@ -10,17 +11,21 @@ import { IamStack } from '../lib/iam-stack';
 // Load environment variables from both .env files
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-// Create a single CDK app instance
 const app = new cdk.App();
 
-// Set environment configuration
+// Set environment configuration with ap-southeast-1 region
 const env = { 
-  region: process.env.CDK_DEFAULT_REGION || 'ap-southeast-1',
+  region: 'ap-southeast-1',
   account: process.env.CDK_DEFAULT_ACCOUNT
 };
 
-// Deploy the API Stack
-new ApiStack(app, 'IntegreatStack', { env });
+// Deploy the API stack
+new ApiStack(app, 'IntegreatStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'ap-southeast-1',
+  },
+});
 
 /**
  * MULTI-TENANT ARCHITECTURE OVERVIEW

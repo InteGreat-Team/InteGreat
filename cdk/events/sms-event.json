@@ -1,0 +1,9 @@
+{
+  "body": "{\"phoneNumber\": \"+1234567890\", \"message\": \"Test SMS message\"}",
+  "resource": "/sms/send",
+  "path": "/sms/send",
+  "httpMethod": "POST",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+} 

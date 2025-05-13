@@ -24,6 +24,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { createClient } from '@supabase/supabase-js';
 import { getEventDetails } from '../../shared/services/eventServices';
 import { sendEventEmail } from '../../shared/services/emailServices';
+import { Logger } from '../utils/logger';
 
 // Validate required environment variables
 const requiredEnvVars = {
@@ -50,40 +51,53 @@ const supabase = createClient(
 );
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    console.log('Received event:', JSON.stringify(event, null, 2));
+  console.log('>>> Email handler started');
+  const startTime = Date.now();
+  console.log('>>> About to initialize logger');
+  const logger = await Logger.getInstance();
+  console.log('>>> Logger initialized');
+  const service = 'Email';
 
-    // Parse request body
+  try {
+    console.log('>>> About to call logger.logRequest');
+    await logger.logRequest(service, event, startTime);
+    console.log('>>> Called logger.logRequest');
+
     if (!event.body) {
-      console.log('Missing request body');
-      return {
+      console.log('>>> No request body found');
+      const response = {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          error: 'Missing request body'
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          error: "Missing request body"
         })
       };
+      console.log('>>> About to log response for missing body');
+      await logger.logResponse(service, event, response, startTime);
+      console.log('>>> Logged response for missing body');
+      return response;
     }
 
-    const body = JSON.parse(event.body);
-    const { eventId, recipientEmail } = body;
-    
-    console.log('Parsed request:', { eventId, recipientEmail });
+    const { eventId, recipientEmail } = JSON.parse(event.body);
 
-    // Validate required fields
     if (!eventId || !recipientEmail) {
-      console.log('Missing required fields:', { eventId, recipientEmail });
-      return {
+      const response = {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          error: 'Missing required fields',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          error: "Missing required fields",
           details: {
-            eventId: !eventId ? 'Event ID is required' : undefined,
-            recipientEmail: !recipientEmail ? 'Recipient email is required' : undefined
+            eventId: !eventId ? "Event ID is required" : undefined,
+            recipientEmail: !recipientEmail ? "Recipient email is required" : undefined
           }
         })
       };
+      await logger.logResponse(service, event, response, startTime);
+      return response;
     }
 
     // Validate email format
@@ -140,15 +154,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     console.log('Email sent successfully');
-    return {
+    const successResponse = {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        message: 'Email sent successfully',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: "Email sent successfully",
         eventId,
-        recipientEmail
+        recipient: recipientEmail
       })
     };
+    await logger.logResponse(service, event, successResponse, startTime);
+    return successResponse;
 
   } catch (error) {
     console.error('Error in email handler:', {
@@ -167,14 +185,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     });
     
-    return {
+    const errorResponse = {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        message: (error as Error).message,
-        details: 'Check CloudWatch logs for more information'
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: "Failed to send email",
+        details: error instanceof Error ? error.message : "Unknown error"
       })
     };
+    await logger.logError(service, event, error, startTime);
+    return errorResponse;
   }
 };

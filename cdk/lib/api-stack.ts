@@ -23,8 +23,26 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import * as fs from 'fs';
+
+// Load environment variables from env.json file
+const envPath = path.join(__dirname, '../env.json');
+const envConfig = JSON.parse(fs.readFileSync(envPath, 'utf8'));
+
+// Define environment variables with defaults
+const env = {
+  SUPABASE_URL: envConfig.Parameters.SUPABASE_URL || '',
+  SUPABASE_KEY: envConfig.Parameters.SUPABASE_KEY || '',
+  NEON_DB_URL: envConfig.Parameters.NEON_DB_URL || '',
+  PHIL_SMS_API_URL: envConfig.Parameters.PHIL_SMS_API_URL || '',
+  PHIL_SMS_API_KEY: envConfig.Parameters.PHIL_SMS_API_KEY || '',
+  SES_SENDER_EMAIL: envConfig.Parameters.SES_SENDER_EMAIL || '',
+  GOOGLE_MAPS_API_KEY: envConfig.Parameters.GOOGLE_MAPS_API_KEY || ''
+};
 
 export class ApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -37,10 +55,11 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: process.env.SUPABASE_URL || '',
-        SUPABASE_KEY: process.env.SUPABASE_KEY || '',
-        PHIL_SMS_API_URL: process.env.PHIL_SMS_API_URL || '',
-        PHIL_SMS_API_KEY: process.env.PHIL_SMS_API_KEY || '',
+        SUPABASE_URL: env.SUPABASE_URL,
+        SUPABASE_KEY: env.SUPABASE_KEY,
+        PHIL_SMS_API_URL: env.PHIL_SMS_API_URL,
+        PHIL_SMS_API_KEY: env.PHIL_SMS_API_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
       memorySize: 256,
@@ -53,9 +72,10 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: process.env.SUPABASE_URL || '',
-        SUPABASE_KEY: process.env.SUPABASE_KEY || '',
-        SES_SENDER_EMAIL: process.env.SES_SENDER_EMAIL || '',
+        SUPABASE_URL: env.SUPABASE_URL,
+        SUPABASE_KEY: env.SUPABASE_KEY,
+        SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
+        NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
       memorySize: 256,
@@ -68,9 +88,10 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: process.env.SUPABASE_URL || '',
-        SUPABASE_KEY: process.env.SUPABASE_KEY || '',
-        GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || '',
+        SUPABASE_URL: env.SUPABASE_URL,
+        SUPABASE_KEY: env.SUPABASE_KEY,
+        GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
       memorySize: 256,
@@ -83,8 +104,9 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: process.env.SUPABASE_URL || '',
-        SUPABASE_KEY: process.env.SUPABASE_KEY || '',
+        SUPABASE_URL: env.SUPABASE_URL,
+        SUPABASE_KEY: env.SUPABASE_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
       memorySize: 256,
@@ -229,6 +251,28 @@ export class ApiStack extends cdk.Stack {
           }
         }
       ]
+    });
+
+    // Create CloudFront distribution
+    const distribution = new cloudfront.Distribution(this, 'ApiDistribution', {
+      defaultBehavior: {
+        origin: new origins.RestApiOrigin(api),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
+      },
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Use only North America and Europe edge locations
+      enableLogging: true,
+      logIncludesCookies: true,
+      geoRestriction: cloudfront.GeoRestriction.allowlist('US', 'CA', 'GB', 'DE', 'FR', 'IT', 'ES', 'JP', 'AU', 'SG', 'PH'),
+    });
+
+    // Output the CloudFront distribution URL
+    new cdk.CfnOutput(this, 'DistributionDomainName', {
+      value: distribution.distributionDomainName,
+      description: 'The domain name of the CloudFront distribution',
     });
 
     // Output the API Gateway URL
