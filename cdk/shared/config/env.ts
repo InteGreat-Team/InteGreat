@@ -19,4 +19,5 @@ export const env = envalid.cleanEnv(process.env, {
     }),
     PHIL_SMS_API_KEY: str(),
     GOOGLE_MAPS_API_KEY: str(),
+    NEON_DB_URL: str(),
 });

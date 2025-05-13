@@ -1,26 +1,15 @@
-
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { ApiStack } from '../lib/api-stack';
+import { AuthStack } from '../lib/auth-stack';
+import { StorageStack } from '../lib/storage-stack';
+import { IamStack } from '../lib/iam-stack';
 
 // Load environment variables from both .env files
 dotenv.config({ path: path.join(__dirname, '../../.env') });
-
-const app = new cdk.App();
-new ApiStack(app, 'IntegreatStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'ap-southeast-1',
-  },
-});
-
-import * as cdk from 'aws-cdk-lib';
-import { AuthStack }  from '../lib/auth-stack';
-import { StorageStack } from '../lib/storage-stack';
-import { IamStack }    from '../lib/iam-stack';
 
 const app = new cdk.App();
 
@@ -29,6 +18,14 @@ const env = {
   region: 'ap-southeast-1',
   account: process.env.CDK_DEFAULT_ACCOUNT
 };
+
+// Deploy the API stack
+new ApiStack(app, 'IntegreatStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'ap-southeast-1',
+  },
+});
 
 /**
  * MULTI-TENANT ARCHITECTURE OVERVIEW
@@ -59,16 +56,16 @@ for (const projectId of tenants) {
   // Authentication Stack (Cognito Identity Pool)
   // This enables Firebase JWT tokens to be exchanged for temporary AWS credentials
   const auth = new AuthStack(app, `${projectId}-auth`, { 
-        projectId,
-        env,
-    });
+    projectId,
+    env,
+  });
 
   // Storage Stack (S3 Bucket)
   // Creates an isolated bucket for this tenant with appropriate CORS settings
   const storage = new StorageStack(app, `${projectId}-storage`, {
-        projectId,
-        env,
-    });
+    projectId,
+    env,
+  });
 
   // IAM Stack (Roles and Permissions)
   // Sets up the role and permissions that authenticated users from this tenant will assume

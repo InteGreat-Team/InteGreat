@@ -24,6 +24,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import { getEventDetails } from '../../shared/services/eventServices';
+import { Logger } from '../utils/logger';
 
 // Validate required environment variables
 const requiredEnvVars = {
@@ -67,11 +68,25 @@ function formatPhoneNumber(phone: string): string {
 }
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  console.log('Environment variables:', {
+    NODE_ENV: process.env.NODE_ENV,
+    SUPABASE_URL: !!process.env.SUPABASE_URL,
+    SUPABASE_KEY: !!process.env.SUPABASE_KEY,
+    PHIL_SMS_API_URL: !!process.env.PHIL_SMS_API_URL,
+    PHIL_SMS_API_KEY: !!process.env.PHIL_SMS_API_KEY,
+    NEON_DB_URL: !!process.env.NEON_DB_URL,
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: process.env.AWS_NODEJS_CONNECTION_REUSE_ENABLED
+  });
+
+  const startTime = Date.now();
+  const logger = await Logger.getInstance();
+  const service = 'SMS';
+
   try {
-    console.log('Received event:', event);
+    await logger.logRequest(service, event, startTime);
 
     if (!event.body) {
-      return {
+      const response = {
         statusCode: 400,
         headers: {
           'Content-Type': 'application/json'
@@ -80,13 +95,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           error: "Missing request body"
         })
       };
+      await logger.logResponse(service, event, response, startTime);
+      return response;
     }
 
     const { eventId, recipientPhone } = JSON.parse(event.body);
-    console.log('Parsed request:', { eventId, recipientPhone });
 
     if (!eventId || !recipientPhone) {
-      return {
+      const response = {
         statusCode: 400,
         headers: {
           'Content-Type': 'application/json'
@@ -99,11 +115,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           }
         })
       };
+      await logger.logResponse(service, event, response, startTime);
+      return response;
     }
 
     const digits = recipientPhone.replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 12) {
-      return {
+      const response = {
         statusCode: 400,
         headers: {
           'Content-Type': 'application/json'
@@ -112,14 +130,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           error: "Invalid phone number length"
         })
       };
+      await logger.logResponse(service, event, response, startTime);
+      return response;
     }
 
-    // Fetch event details from Supabase
-    console.log('Fetching event details for ID:', eventId);
     const eventDetails = await getEventDetails(eventId, supabase);
 
     if (!eventDetails) {
-      return {
+      const response = {
         statusCode: 404,
         headers: {
           'Content-Type': 'application/json'
@@ -129,21 +147,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           eventId
         })
       };
+      await logger.logResponse(service, event, response, startTime);
+      return response;
     }
 
-    console.log('Event details:', eventDetails);
-
     const formattedPhone = formatPhoneNumber(recipientPhone);
-    console.log('Formatted phone:', formattedPhone);
 
-    // Format the message with event details
     const message = `📢 Event Alert: ${eventDetails.name}
 📅 Date: ${eventDetails.date || "Not specified"}
 🕒 Time: ${eventDetails.start_time || "Not specified"} - ${eventDetails.end_time || "Not specified"}
 📍 Location: ${eventDetails.location || "Not specified"}
 📖 Description: ${eventDetails.description || "No description available"}`;
-
-    console.log('Sending SMS with message:', message);
 
     const smsNotification = {
       recipient: formattedPhone,
@@ -153,9 +167,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
 
     const response = await philSmsClient.post('/sms/send', smsNotification);
-    console.log('SMS API response:', response.data);
 
-    return {
+    const successResponse = {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json'
@@ -167,9 +180,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         response: response.data
       })
     };
+    await logger.logResponse(service, event, successResponse, startTime);
+    return successResponse;
+
   } catch (error) {
-    console.error('Error in SMS handler:', error);
-    return {
+    const errorResponse = {
       statusCode: 500,
       headers: {
         'Content-Type': 'application/json'
@@ -179,5 +194,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         details: error instanceof Error ? error.message : "Unknown error"
       })
     };
+    await logger.logError(service, event, error, startTime);
+    return errorResponse;
   }
 };
