@@ -25,6 +25,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 // Configure dotenv to load environment variables
 dotenv.config({ path: '../../.env' });
@@ -44,6 +45,10 @@ interface PaymentOptions {
   failureUrl?: string;
 }
 
+function getPaymongoSecretKey(): string {
+  return process.env.PAYMONGO_SECRET_KEY || '';
+}
+
 /**
  * Creates a payment link through the PayMongo API
  * 
@@ -58,13 +63,18 @@ interface PaymentOptions {
  * @throws Error if the API request fails
  */
 async function createPaymentLink(options: PaymentOptions): Promise<string> {
+  const key = getPaymongoSecretKey();
+  if (!key) {
+    console.error('PAYMONGO_SECRET_KEY is not set!');
+    throw new Error('PAYMONGO_SECRET_KEY is not set');
+  }
   try {
     const response = await axios({
       method: 'post',
       url: 'https://api.paymongo.com/v1/links',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(PAYMONGO_SECRET_KEY + ':').toString('base64')}`
+        'Authorization': `Basic ${Buffer.from(key + ':').toString('base64')}`
       },
       data: {
         data: {
@@ -79,12 +89,13 @@ async function createPaymentLink(options: PaymentOptions): Promise<string> {
         }
       }
     });
-    
-    // Return the checkout URL without logging it here
     return response.data.data.attributes.checkout_url;
-    
   } catch (error: any) {
-    console.error('Error creating payment link:', error.response ? error.response.data : error.message);
+    if (error.response && error.response.data) {
+      console.error('PayMongo API error response:', error.response.data);
+    } else {
+      console.error('Error:', error.message || error);
+    }
     throw error;
   }
 }
@@ -167,6 +178,78 @@ if (require.main === module) {
     }
   });
 }
+
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  try {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Missing request body' }),
+      };
+    }
+    let paymentOptions: PaymentOptions;
+    try {
+      paymentOptions = JSON.parse(event.body);
+    } catch (parseError) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Invalid JSON in request body' }),
+      };
+    }
+    if (!paymentOptions.amount || !paymentOptions.description) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Missing required fields: amount and description' }),
+      };
+    }
+    const key = getPaymongoSecretKey();
+    if (!key) {
+      console.error('PAYMONGO_SECRET_KEY is not set!');
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'PAYMONGO_SECRET_KEY is not set in environment' }),
+      };
+    }
+    console.log('PAYMONGO_SECRET_KEY (partial):', key ? key.slice(0, 6) + '...' + key.slice(-4) : 'NOT SET');
+    let checkoutUrl: string;
+    try {
+      checkoutUrl = await createPaymentLink(paymentOptions);
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        console.error('PayMongo API error response:', error.response.data);
+        return {
+          statusCode: error.response.status || 500,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: error.response.data || 'PayMongo API error' }),
+        };
+      } else {
+        console.error('Error:', error.message || error);
+        return {
+          statusCode: 500,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: error.message || 'Internal Server Error' }),
+        };
+      }
+    }
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checkoutUrl }),
+    };
+  } catch (error: any) {
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: error.message || 'Internal Server Error' }),
+    };
+  }
+};
 
 // Export functions for use in other files
 export {
