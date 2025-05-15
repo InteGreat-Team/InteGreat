@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "firebase": "^11.7.1",
+    "firebase": "^11.7.3",
+    "lucide-react": "^0.510.0",
     "powerbi-client-react": "^2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
