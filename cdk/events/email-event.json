@@ -1,0 +1,17 @@
+{
+  "httpMethod": "POST",
+  "path": "/email/send",
+  "headers": {
+    "Content-Type": "application/json",
+    "Origin": "http://localhost:3000"
+  },
+  "requestContext": {
+    "identity": {
+      "sourceIp": "127.0.0.1"
+    },
+    "authorizer": {
+      "role": "test-user"
+    }
+  },
+  "body": "{\"eventId\": \"123\", \"recipientEmail\": \"test@example.com\"}"
+} 

@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Integreat API Stack (.env-based local dev)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        SUPABASE_URL: !Ref SupabaseUrl
+        SUPABASE_KEY: !Ref SupabaseKey
+        PHIL_SMS_API_URL: !Ref PhilSmsApiUrl
+        PHIL_SMS_API_KEY: !Ref PhilSmsApiKey
+        SES_SENDER_EMAIL: !Ref SesEmailSender
+        NEON_DB_URL: !Ref NeonDbUrl
+        NODE_ENV: production
+
+Resources:
+  EmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/handlers/emailHandler.handler
+      Runtime: nodejs18.x
+      CodeUri: ./dist
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: ${SUPABASE_URL}
+          SUPABASE_KEY: ${SUPABASE_KEY}
+          SES_SENDER_EMAIL: ${SES_SENDER_EMAIL}
+          NEON_DB_URL: ${NEON_DB_URL}
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /email/send
+            Method: post
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+
+  SmsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/handlers/smsHandler.handler
+      Runtime: nodejs18.x
+      CodeUri: ./dist
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: ${SUPABASE_URL}
+          SUPABASE_KEY: ${SUPABASE_KEY}
+          PHIL_SMS_API_URL: ${PHIL_SMS_API_URL}
+          PHIL_SMS_API_KEY: ${PHIL_SMS_API_KEY}
+          NEON_DB_URL: ${NEON_DB_URL}
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /sms/send
+            Method: post
+
+  GeolocationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/handlers/geolocationHandler.handler
+      Runtime: nodejs18.x
+      CodeUri: ./dist
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: ${SUPABASE_URL}
+          SUPABASE_KEY: ${SUPABASE_KEY}
+          GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+          NEON_DB_URL: ${NEON_DB_URL}
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /maps/geocode
+            Method: get
+
+  PaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/handlers/paymentHandler.handler
+      Runtime: nodejs18.x
+      CodeUri: ./dist
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: ${SUPABASE_URL}
+          SUPABASE_KEY: ${SUPABASE_KEY}
+          NEON_DB_URL: ${NEON_DB_URL}
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /payment/create
+            Method: post

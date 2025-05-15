@@ -9,8 +9,8 @@ InteGreat employs a dual architecture approach: a development environment using 
 ## Features ✨
 
 -   **Centralized Infrastructure Management** 🛠️: Provision and manage cloud resources via Infrastructure as Code (IaC)
--   **Multi-tenant Authentication** 🔐: Unified Cognito User Pool with app-specific user groups and IAM role restrictions
--   **Storage Management** 📦: Separate S3 buckets for each application with dedicated access controls
+-   **Multi-tenant Authentication** 🔐: Firebase authentication with AWS Cognito Identity Pools for secure, isolated tenant access
+-   **Storage Management** 📦: Separate S3 buckets for each tenant with appropriate CORS and access controls
 -   **Database Strategy** 🗄️: Dedicated database instances for each application ensuring optimal performance
 -   **Third-Party API Integration** 🔌: Connect with external services for email (SES), SMS (PhilSMS), payment (Paymongo), and geolocation (Google Maps)
 -   **Cross-Application Communication** 🔄: Enable secure data sharing between different systems
@@ -32,6 +32,7 @@ InteGreat employs a dual architecture approach: a development environment using 
     - [Functions 🛠️](#functions-)
     - [API Gateway 🌉](#api-gateway-)
   - [AWS CDK Architecture 🏗️](#aws-cdk-architecture-)
+- [Multi-Tenant Architecture 🏢](#multi-tenant-architecture-)
 - [Additional Notes 📝](#additional-notes-)
 
 ---
@@ -90,34 +91,45 @@ This structure is optimized for serverless deployment, providing a clear separat
 ## Production Phase 🏗️
 
 ### Hosting 🌐
-- **AWS Amplify Hosting**: Applications are deployed under Integreat’s centralized AWS account for production.
+- **AWS Amplify Hosting**: Applications are deployed under Integreat's centralized AWS account for production.
 
 ### Backend Infrastructure 🛡️
 Integreat provisions and manages the production infrastructure using **Infrastructure as Code (IaC)**, ensuring consistency and scalability.
 
 #### Authentication 🔐
-- Centralized authentication is managed via **AWS Cognito**.
-- A single Cognito User Pool is used, with user groups representing individual apps (e.g., church, events, students).
-- **IAM Roles** are assigned to each group to restrict access, ensuring users can only access resources relevant to their app.
-- Integreat retains administrative access to all resources.
+- Each tenant (application) uses **Firebase Authentication** as the primary authentication provider
+- **AWS Cognito Identity Pools** are provisioned for each tenant to enable secure access to AWS resources
+- Firebase JWT tokens are exchanged for temporary AWS credentials via Cognito Identity Federation
+- OIDC integration between Firebase and AWS ensures secure token validation
 
 #### Storage 📦
-- **Separate S3 buckets** are now used for each application (e.g., `church-storage`, `events-storage`, `student-storage`).
-- This approach provides improved isolation, security, and performance optimization per application.
-- **IAM Roles** are configured to restrict access so that applications can only interact with their designated buckets.
-- Integreat maintains administrative access across all buckets for centralized management.
+- **Separate S3 buckets** are created for each tenant (e.g., `evntgarde-event-management-tenant-bucket`)
+- Each bucket is configured with:
+  - Tenant-specific naming to ensure global uniqueness
+  - Complete public access blocking for security
+  - CORS configuration to allow direct browser access via the AWS SDK
+  - Retention policy to prevent accidental deletion
+- Two access methods are supported:
+  1. **Direct frontend access** via AWS SDK:
+     - Uses Firebase Authentication with Cognito Identity Pools
+     - Temporary AWS credentials are generated based on Firebase JWT tokens
+     - No API Gateway required for basic S3 operations
+     - Access permissions controlled by IAM policies linked to the tenant's identity pool
+  2. **Backend access** via Lambda functions:
+     - For complex operations requiring server-side processing
+     - Accessed through API Gateway endpoints when needed
 
 #### Functions 🛠️
-- **Separate NeonDB instances** are now used for each application, providing dedicated databases (e.g., `church-db`, `events-db`, `student-db`).
+- **Separate NeonDB instances** are used for each application, providing dedicated databases
 - This approach offers improved cost-efficiency, performance isolation, and simplified management 
 - **Database Connections**:
-  - Applications connect only to their own dedicated database.
-  - Integreat maintains connection capabilities to all databases for cross-application data coordination and management.
+  - Applications connect only to their own dedicated database
+  - Integreat maintains connection capabilities to all databases for cross-application data coordination and management
 
 #### API Gateway 🌉
-- All cross-app communication and third-party API integrations flow through Integreat’s centralized **API Gateway**.
-- The API Gateway is protected by **IAM Roles** and authorization policies.
-- Access to endpoints is restricted based on app and user group permissions.
+- All cross-app communication and third-party API integrations flow through Integreat's centralized **API Gateway**
+- The API Gateway is protected by **IAM Roles** and authorization policies
+- Access to endpoints is restricted based on app and user group permissions
 
 ---
 
@@ -164,6 +176,45 @@ This architecture ensures a robust, scalable, and maintainable production enviro
 
 ---
 
+## Multi-Tenant Architecture 🏢
+
+InteGreat implements a robust multi-tenant architecture with complete isolation between tenants:
+
+### One Repo → One Firebase Project
+Each application (EVNTgarde, Pillars, Teleo, Campus) lives in its own Git repo and its own Firebase project—so Auth, Firestore, Hosting, etc., are already siloed.
+
+### CDK Stacks Per Tenant
+The CDK app loops over each projectId and deploys three stacks per tenant:
+
+#### AuthStack
+- Creates a Cognito Identity Pool named `<PROJECT_ID>-identity-pool`
+- Tied to the Firebase OIDC issuer (securetoken.google.com/`<PROJECT_ID>`)
+- No unauthenticated identities allowed
+
+#### StorageStack
+- Provisions an S3 bucket named `<PROJECT_ID>-tenant-bucket`
+- Blocks all public access
+- Enables CORS for browser-based SDK calls (GET, PUT, HEAD, POST, DELETE)
+- Retains bucket on stack deletion for data protection
+
+#### IamStack
+- Defines a TenantUserRole that trusts the Identity Pool via sts:AssumeRoleWithWebIdentity
+- Scopes that role to allow s3:PutObject, s3:GetObject, s3:DeleteObject, and s3:ListBucket on that tenant's bucket
+- Attaches the TenantUserRole as the authenticated role on the Identity Pool
+
+### Frontend Integration
+1. AuthContext calls firebase.auth().currentUser.getIdToken() to obtain a fresh Firebase JWT
+2. JWT is passed to AWS.CognitoIdentityCredentials (Logins map), which exchanges it for short-lived AWS credentials under the TenantUserRole
+3. With those credentials, the AWS SDK in the browser can call S3 operations directly against the tenant's bucket—CORS-enabled and locked down by IAM
+
+### Benefits
+- Full per-tenant isolation at both the Firebase and AWS layers
+- Zero back-end proxy for S3: front end talks straight to S3 with temporary credentials
+- Clear, repeatable CDK pattern for adding more tenants in the future (just add another projectId)
+
+---
+
 ## Additional Notes 📝
-- The architecture leverages **AWS CDK** for provisioning and managing production infrastructure.
-- This ensures scalability, security, and consistency across all applications hosted under Integreat.
+- The architecture leverages **AWS CDK** for provisioning and managing production infrastructure
+- This ensures scalability, security, and consistency across all applications hosted under Integreat
+- When adding new tenants, simply add their Firebase project ID to the tenant list in the CDK app
