@@ -1,112 +1,393 @@
 .signin-page {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
+	display: flex;
+	min-height: 100vh;
+	width: 100%;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .left-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 0 12%;
-  background-color: #ffffff;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	padding: 0 12%;
+	background-color: #ffffff;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+	position: relative;
+	z-index: 1;
+	overflow: hidden;
+}
+
+/* Add decorative elements to the left section */
+.left-section::before {
+	content: "";
+	position: absolute;
+	width: 300px;
+	height: 300px;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle,
+		rgba(52, 73, 94, 0.05) 0%,
+		rgba(52, 73, 94, 0) 70%
+	);
+	top: -150px;
+	left: -150px;
+	z-index: -1;
+}
+
+.left-section::after {
+	content: "";
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle,
+		rgba(52, 73, 94, 0.05) 0%,
+		rgba(52, 73, 94, 0) 70%
+	);
+	bottom: -100px;
+	right: -100px;
+	z-index: -1;
 }
 
 .login-content {
-  max-width: 400px;
+	max-width: 400px;
+	width: 100%;
+	animation: fadeIn 0.8s ease-out;
+	position: relative;
+	z-index: 2;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.app-logo {
+	margin-bottom: 30px;
+	display: flex;
+	align-items: center;
+}
+
+.logo-icon {
+	width: 40px;
+	height: 40px;
+	background-color: #34495e;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 10px;
+	color: white;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+.logo-text {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #34495e;
 }
 
 .welcome-title {
-  color: #1f384c;
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin-bottom: 8px;
+	color: #1f384c;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 12px;
+	letter-spacing: -0.5px;
 }
 
 .welcome-subtitle {
-  color: #1f384c;
-  font-size: 1rem;
-  margin-bottom: 24px;
+	color: #5a7082;
+	font-size: 1.1rem;
+	margin-bottom: 32px;
+	font-weight: 400;
+	line-height: 1.5;
+}
+
+.login-form {
+	width: 100%;
+}
+
+.login-options {
+	margin-bottom: 25px;
+}
+
+.option-divider {
+	display: flex;
+	align-items: center;
+	margin: 25px 0;
+	color: #8395a7;
+	font-size: 0.9rem;
+}
+
+.divider-line {
+	flex: 1;
+	height: 1px;
+	background-color: #e1e8ed;
+}
+
+.divider-text {
+	padding: 0 15px;
 }
 
 .google-signin-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: #2c2c2c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	background-color: #2c2c2c;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 14px 24px;
+	font-size: 1rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	width: 100%;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .google-signin-btn:hover {
-  background-color: #1a1a1a;
+	background-color: #1a1a1a;
+	transform: translateY(-2px);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.google-signin-btn:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .google-signin-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+	opacity: 0.7;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.privacy-text {
+	margin-top: 25px;
+	font-size: 0.8rem;
+	color: #8395a7;
+	text-align: center;
+}
+
+.privacy-text a {
+	color: #34495e;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.privacy-text a:hover {
+	text-decoration: underline;
 }
 
 .right-section {
-  flex: 1;
-  background-color: #d9e77a;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
+	flex: 1;
+	background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Add decorative patterns to the right section */
+.right-section::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.1) 1px,
+			transparent 1px
+		),
+		radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+	background-size: 30px 30px;
+	background-position: 0 0, 15px 15px;
+	pointer-events: none;
+}
+
+.right-section::after {
+	content: "";
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: radial-gradient(
+		circle,
+		rgba(255, 255, 255, 0.3) 0%,
+		rgba(255, 255, 255, 0) 60%
+	);
+	pointer-events: none;
 }
 
 .branding {
-  position: absolute;
-  top: 15%;
-  left: 10%;
+	position: absolute;
+	top: 15%;
+	left: 10%;
+	animation: float 6s ease-in-out infinite;
+	z-index: 1;
+}
+
+@keyframes float {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-15px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
 }
 
 .brand-text {
-  font-size: 6rem;
-  font-weight: 700;
-  line-height: 1;
+	font-size: 6rem;
+	font-weight: 700;
+	line-height: 1;
+	text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .brand-inte {
-  background-color: #1f384c;
-  color: #d9e77a;
-  padding: 0 10px;
+	background-color: #ffffff;
+	color: #34495e;
+	padding: 0 10px;
+	border-radius: 4px 0 0 4px;
+	display: inline-block;
+	transition: transform 0.3s ease;
 }
 
 .brand-great {
-  color: #1f384c;
+	color: #ffffff;
+	display: inline-block;
+	transition: transform 0.3s ease;
+}
+
+.branding:hover .brand-inte {
+	transform: translateX(-5px);
+}
+
+.branding:hover .brand-great {
+	transform: translateX(5px);
+}
+
+/* Remove feature list related CSS */
+.feature-list,
+.feature-heading,
+.feature-item,
+.feature-icon,
+.feature-text {
+	/* These styles can be removed as they're no longer needed */
+	display: none;
+}
+
+.decorative-shape {
+	position: absolute;
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+}
+
+.shape-1 {
+	width: 100px;
+	height: 100px;
+	top: 10%;
+	right: 20%;
+	animation: pulse 8s infinite alternate;
+}
+
+.shape-2 {
+	width: 150px;
+	height: 150px;
+	bottom: 15%;
+	right: 10%;
+	animation: pulse 12s infinite alternate;
+}
+
+.shape-3 {
+	width: 70px;
+	height: 70px;
+	bottom: 30%;
+	right: 30%;
+	animation: pulse 6s infinite alternate;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+		opacity: 0.3;
+	}
+	100% {
+		transform: scale(1.2);
+		opacity: 0.1;
+	}
+}
+
+@media (max-width: 992px) {
+	.brand-text {
+		font-size: 5rem;
+	}
 }
 
 @media (max-width: 768px) {
-  .signin-page {
-    flex-direction: column-reverse;
-  }
+	.signin-page {
+		flex-direction: column-reverse;
+	}
 
-  .left-section {
-    padding: 40px 20px;
-  }
+	.left-section {
+		padding: 60px 20px;
+	}
 
-  .right-section {
-    min-height: 200px;
-  }
+	.login-content {
+		max-width: 100%;
+	}
 
-  .branding {
-    position: relative;
-    top: auto;
-    left: auto;
-    margin: 20px 0;
-  }
+	.right-section {
+		min-height: 300px;
+	}
 
-  .brand-text {
-    font-size: 3rem;
-  }
+	.branding {
+		position: relative;
+		top: auto;
+		left: auto;
+		margin: 0;
+		animation: none;
+	}
+
+	.brand-text {
+		font-size: 3.5rem;
+	}
+
+	.decorative-shape {
+		display: none;
+	}
+}
+
+@media (max-width: 480px) {
+	.welcome-title {
+		font-size: 2rem;
+	}
+
+	.brand-text {
+		font-size: 2.8rem;
+	}
+
+	.left-section {
+		padding: 40px 20px;
+	}
 }
