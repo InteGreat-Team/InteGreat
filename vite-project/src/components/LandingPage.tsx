@@ -6,6 +6,7 @@ import type { User } from "firebase/auth"
 import { auth } from "../../firebase"
 import { useNavigate } from "react-router-dom"
 import { LayoutGrid, Users, Settings, LogOut } from "lucide-react"
+import PowerBIDashboard from "./PowerBIDashboard"
 import "./LandingPage.css"
 
 const LandingPage = () => {
@@ -86,13 +87,21 @@ const LandingPage = () => {
           {/* Main Content */}
           <main className="main-content">
             <h1 className="page-title">Dashboard</h1>
-            <div className="dashboard-content">
-              {user && (
-                <div className="user-welcome">
-                  <h2>Welcome back!</h2>
-                  <p>You are now signed in to your dashboard.</p>
-                </div>
-              )}
+
+            {user && (
+              <div className="user-welcome">
+                <h2>Welcome back!</h2>
+                <p>You are now signed in to your dashboard.</p>
+              </div>
+            )}
+
+            {/* Power BI Dashboard */}
+            <div className="dashboard-section">
+              <PowerBIDashboard
+                reportId="4314adda-bb34-48da-90dd-0b4c9ef4a326"
+                ctid="2840082d-702c-4fb1-9885-abddd1ddaa1e"
+                height={600}
+              />
             </div>
           </main>
         </div>

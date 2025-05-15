@@ -100,6 +100,7 @@
   flex: 1;
   padding: 30px;
   background-color: #ffffff;
+  overflow-y: auto;
 }
 
 .page-title {
@@ -114,7 +115,7 @@
   background-color: #f8fafc;
   border-radius: 8px;
   padding: 20px;
-  margin-top: 20px;
+  margin-bottom: 20px;
   border: 1px solid #e2e8f0;
 }
 
@@ -126,4 +127,32 @@
 
 .user-welcome p {
   color: #64748b;
+}
+
+/* Dashboard section */
+.dashboard-section {
+  margin-top: 20px;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
 }
