@@ -58,11 +58,10 @@ export class ApiStack extends cdk.Stack {
         PHIL_SMS_API_KEY: env.PHIL_SMS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-        AWS_REGION: 'ap-southeast-1'
       },
       memorySize: 512, 
       timeout: cdk.Duration.seconds(30),
-      retryAttempts: 3,
+      retryAttempts: 2,
     });
 
     const emailFunction = new lambda.Function(this, 'EmailFunction', {
@@ -74,11 +73,10 @@ export class ApiStack extends cdk.Stack {
         SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
         NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-        AWS_REGION: 'ap-southeast-1' 
       },
       memorySize: 512, 
       timeout: cdk.Duration.seconds(30),
-      retryAttempts: 3, 
+      retryAttempts: 2, 
     });
 
     const routesFunction = new lambda.Function(this, 'RoutesFunction', {
@@ -90,11 +88,10 @@ export class ApiStack extends cdk.Stack {
         GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-        AWS_REGION: 'ap-southeast-1'
       },
       memorySize: 512, 
       timeout: cdk.Duration.seconds(30),
-      retryAttempts: 3,
+      retryAttempts: 2,
     });
 
     const geocodeFunction = new lambda.Function(this, 'GeocodeFunction', {
@@ -106,7 +103,6 @@ export class ApiStack extends cdk.Stack {
       GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
       NEON_DB_URL: env.NEON_DB_URL,
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      AWS_REGION: 'ap-southeast-1'
     },
       memorySize: 256,
       timeout: cdk.Duration.seconds(15),
@@ -122,7 +118,6 @@ export class ApiStack extends cdk.Stack {
         GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-        AWS_REGION: 'ap-southeast-1'
       },
       memorySize: 256,
       timeout: cdk.Duration.seconds(15),
@@ -138,7 +133,6 @@ export class ApiStack extends cdk.Stack {
       GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
       NEON_DB_URL: env.NEON_DB_URL,
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      AWS_REGION: 'ap-southeast-1'
     },
     memorySize: 512, // Increased for places search which returns more data
     timeout: cdk.Duration.seconds(30),
