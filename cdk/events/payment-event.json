@@ -1,0 +1,8 @@
+{
+  "amount": 100000,
+  "description": "Payment for Teleo",
+  "remarks": "Annual plan - Invoice #12345",
+  "currency": "PHP",
+  "successUrl": "https://your-website.com/payment-success",
+  "failureUrl": "https://your-website.com/payment-failed"
+}

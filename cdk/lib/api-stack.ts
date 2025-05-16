@@ -39,7 +39,8 @@ const env = {
   PHIL_SMS_API_URL: envConfig.Parameters.PHIL_SMS_API_URL || '',
   PHIL_SMS_API_KEY: envConfig.Parameters.PHIL_SMS_API_KEY || '',
   SES_SENDER_EMAIL: envConfig.Parameters.SES_SENDER_EMAIL || '',
-  GOOGLE_MAPS_API_KEY: envConfig.Parameters.GOOGLE_MAPS_API_KEY || ''
+  GOOGLE_MAPS_API_KEY: envConfig.Parameters.GOOGLE_MAPS_API_KEY || '',
+  PAYMONGO_SECRET_KEY: envConfig.Parameters.PAYMONGO_SECRET_KEY || ''
 };
 
 export class ApiStack extends cdk.Stack {
@@ -151,6 +152,7 @@ export class ApiStack extends cdk.Stack {
       environment: {
         NODE_ENV: 'production',
         NEON_DB_URL: env.NEON_DB_URL,
+        PAYMONGO_SECRET_KEY: env.PAYMONGO_SECRET_KEY,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
       memorySize: 256,
