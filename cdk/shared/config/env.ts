@@ -9,8 +9,6 @@ const { str } = envalid;
 
 // Validate and clean the environment variables
 export const env = envalid.cleanEnv(process.env, {
-    SUPABASE_URL: str(), 
-    SUPABASE_KEY: str(),
     AWS_REGION: str({ default: 'ap-southeast-1' }),
     SES_SENDER_EMAIL: str({ default: 'integreatapi@gmail.com' }),
     PHIL_SMS_API_URL: str({

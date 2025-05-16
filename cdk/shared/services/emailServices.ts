@@ -2,25 +2,26 @@
  * Email Service
  * 
  * This service handles email-related functionality using AWS Simple Email Service (SES).
- * It provides methods for sending event details via email to specified recipients.
+ * It provides a general-purpose method for sending emails to specified recipients.
  * 
  * Key Components:
  * - SES Integration: Uses AWS SDK v3 for email delivery
- * - HTML Email Generation: Formats event details into readable HTML content
+ * - Flexible Email Options: Supports various email formats and recipients
  * - Transaction Logging: Records email sending attempts and results
  * 
  * Features:
  * - Error Handling: Catches and logs SES errors appropriately
- * - Formatted Content: Presents event details in structured HTML format
+ * - Multiple Content Types: Supports both HTML and plain text formats
+ * - CC/BCC Support: Allows carbon copy and blind carbon copy recipients
  * - Environment Configuration: Uses validated environment variables
  * - Result Tracking: Returns boolean success/failure result
  * 
  * This service is used by controllers to fulfill email-related requests,
- * providing a reliable and consistent way to send event notifications.
+ * providing a reliable and consistent way to send notifications.
  */
 
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
-import { EventDetails } from '../types/eventTypes';
+import { EmailOptions, EmailAttachement } from '../types/emailTypes';
 
 // Log environment variables for debugging
 console.log('Email service environment:', {
@@ -34,64 +35,65 @@ const sesClient = new SESClient({
 });
 
 /**
- * Send event details via email to a specified recipient
+ * Send an email using AWS SES
  * 
- * @param event - Event details object containing all event information
- * @param recipientEmail - Email address of the recipient
+ * @param options - Email options containing recipient, subject, content, etc.
  * @returns Promise<boolean> - True if email was sent successfully, false otherwise
  */
-export async function sendEventEmail(event: EventDetails, recipientEmail: string): Promise<boolean> {
+export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
     // Validate required parameters
-    if (!event || !recipientEmail) {
-      console.error('Missing required parameters:', { event, recipientEmail });
+    if (!options.to || !options.subject || (!options.text && !options.html)) {
+      console.error('Missing required email parameters:', options);
       return false;
     }
 
-    // Log attempt to send email with full details
+    // Log attempt to send email
     console.log('Attempting to send email:', {
-      event,
-      recipientEmail,
+      to: options.to,
+      subject: options.subject,
       senderEmail: process.env.SES_SENDER_EMAIL,
       region: process.env.AWS_REGION
     });
 
-    // Log event details
-    console.log('Event details:', {
-      id: event.event_id,
-      name: event.name,
-      date: event.date,
-      time: `${event.start_time} - ${event.end_time}`,
-      location: event.location
-    });
+    // Build email message
+    const emailMessage: any = {
+      Subject: { Data: options.subject }
+    };
+
+    // Add body content
+    emailMessage.Body = {};
+    if (options.text) {
+      emailMessage.Body.Text = { Data: options.text };
+    }
+    if (options.html) {
+      emailMessage.Body.Html = { Data: options.html };
+    }
+
+    // Prepare destination addresses
+    const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
+    const ccAddresses = options.cc ? (Array.isArray(options.cc) ? options.cc : [options.cc]) : undefined;
+    const bccAddresses = options.bcc ? (Array.isArray(options.bcc) ? options.bcc : [options.bcc]) : undefined;
 
     // Prepare SES command with email details
     const command = new SendEmailCommand({
       Source: process.env.SES_SENDER_EMAIL,
       Destination: {
-        ToAddresses: [recipientEmail],
+        ToAddresses: toAddresses,
+        CcAddresses: ccAddresses,
+        BccAddresses: bccAddresses
       },
-      Message: {
-        Subject: {
-          Data: `Event Details: ${event.name}`,
-        },
-        Body: {
-          Html: {
-            Data: `
-              <h1>Event Details</h1>
-              <p><strong>Name:</strong> ${event.name}</p>
-              <p><strong>Date:</strong> ${event.date || 'Not specified'}</p>
-              <p><strong>Time:</strong> ${event.start_time || 'Not specified'} - ${event.end_time || 'Not specified'}</p>
-              <p><strong>Location:</strong> ${event.location || 'Not specified'}</p>
-              <p><strong>Description:</strong> ${event.description || 'No description available'}</p>
-            `,
-          },
-        },
-      },
+      Message: emailMessage
     });
     
-    // Log the email command
-    console.log('Email command:', JSON.stringify(command.input, null, 2));
+    // Note about attachments
+    if (options.attachments && options.attachments.length > 0) {
+      console.warn('Attachments are not directly supported with basic SES SendEmailCommand');
+      // For attachments, you would need to use MIME or SendRawEmailCommand
+    }
+    
+    // Log the email command (simplified for clarity)
+    console.log('Email command prepared for sending');
 
     // Send email using SES client
     const response = await sesClient.send(command);
@@ -104,12 +106,12 @@ export async function sendEventEmail(event: EventDetails, recipientEmail: string
       error,
       errorMessage: (error as Error).message,
       errorStack: (error as Error).stack,
-      eventId: event.event_id,
-      recipientEmail,
+      to: options.to,
+      subject: options.subject,
       senderEmail: process.env.SES_SENDER_EMAIL,
       region: process.env.AWS_REGION
     });
     
     return false;
   }
-} 
+}
