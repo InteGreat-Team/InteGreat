@@ -1,5 +1,3 @@
-"use client"
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { onAuthStateChanged } from "firebase/auth"
@@ -12,12 +10,31 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user)
-      setAuthChecked(true)
-    })
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Add email guard - only allow integreatapi@gmail.com
+      if (user && user.email === "integreatapi@gmail.com") {
+        try {
+          // Force token refresh to verify user still exists on server
+          await user.getIdToken(true);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error("Auth token invalid:", error);
+          await auth.signOut();
+          setIsAuthenticated(false);
+        }
+      } else if (user) {
+        // If user exists but email doesn't match, sign them out
+        console.log("Unauthorized email:", user.email);
+        await auth.signOut();
+        setIsAuthenticated(false);
+      } else {
+        // No user is signed in
+        setIsAuthenticated(false);
+      }
+      setAuthChecked(true);
+    });
 
-    return () => unsubscribe()
+    return () => unsubscribe();
   }, [])
 
   if (!authChecked) {

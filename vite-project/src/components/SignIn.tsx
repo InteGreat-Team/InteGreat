@@ -20,15 +20,13 @@ function SignIn() {
 				signInButton.innerHTML = "<span>Signing in...</span>";
 			}
 
-			const result = await signInWithPopup(auth, provider);
-			console.log("✅ Logged in user:", result.user);
+			await signInWithPopup(auth, provider);
 
 			// Small delay before navigation to ensure auth state is properly set
 			setTimeout(() => {
 				navigate("/");
 			}, 100);
 		} catch (error) {
-			console.error("❌ Sign-in error:", error);
 			// Re-enable the button if there's an error
 			const signInButton = document.querySelector(
 				".google-signin-btn"
