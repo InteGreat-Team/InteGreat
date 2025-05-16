@@ -42,6 +42,7 @@ Globals:
         SES_SENDER_EMAIL: !Ref SesEmailSender
         NEON_DB_URL: !Ref NeonDbUrl
         PAYMONGO_SECRET_KEY: !Ref PaymongoSecretKey
+        GOOGLE_MAPS_API_KEY: !Ref GoogleMapsApiKey
         NODE_ENV: production
 
 Resources:
@@ -98,9 +99,9 @@ Resources:
   GeolocationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: functions/handlers/geolocationHandler.handler
+      Handler: index.handler
       Runtime: nodejs18.x
-      CodeUri: ./dist
+      CodeUri: .aws-sam/build/GeolocationFunction
       Environment:
         Variables:
           NODE_ENV: development
@@ -113,7 +114,70 @@ Resources:
         TestEvent:
           Type: Api
           Properties:
-            Path: /maps/geocode
+            Path: /geolocation/geocode
+            Method: get
+
+  ReverseGeocodeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: .aws-sam/build/ReverseGeocodeFunction
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: !Ref SupabaseUrl
+          SUPABASE_KEY: !Ref SupabaseKey
+          GOOGLE_MAPS_API_KEY: !Ref GoogleMapsApiKey
+          NEON_DB_URL: !Ref NeonDbUrl
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /geolocation/reverse-geocode
+            Method: get
+
+  RoutesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: .aws-sam/build/RoutesFunction
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: !Ref SupabaseUrl
+          SUPABASE_KEY: !Ref SupabaseKey
+          GOOGLE_MAPS_API_KEY: !Ref GoogleMapsApiKey
+          NEON_DB_URL: !Ref NeonDbUrl
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /geolocation/routes
+            Method: get
+
+  PlacesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: .aws-sam/build/PlacesFunction
+      Environment:
+        Variables:
+          NODE_ENV: development
+          SUPABASE_URL: !Ref SupabaseUrl
+          SUPABASE_KEY: !Ref SupabaseKey
+          GOOGLE_MAPS_API_KEY: !Ref GoogleMapsApiKey
+          NEON_DB_URL: !Ref NeonDbUrl
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Events:
+        TestEvent:
+          Type: Api
+          Properties:
+            Path: /geolocation/places
             Method: get
 
   PaymentFunction:

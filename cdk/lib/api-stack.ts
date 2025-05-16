@@ -50,8 +50,8 @@ export class ApiStack extends cdk.Stack {
     // Create the Lambda functions
     const smsFunction = new lambda.Function(this, 'SmsFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'functions/handlers/smsHandler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/SmsFunction')),
       environment: {
         NODE_ENV: 'production',
         PHIL_SMS_API_URL: env.PHIL_SMS_API_URL,
@@ -66,8 +66,8 @@ export class ApiStack extends cdk.Stack {
 
     const emailFunction = new lambda.Function(this, 'EmailFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'functions/handlers/emailHandler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/EmailFunction')),
       environment: {
         NODE_ENV: 'production',
         SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
@@ -81,8 +81,8 @@ export class ApiStack extends cdk.Stack {
 
     const routesFunction = new lambda.Function(this, 'RoutesFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'functions/handlers/routesHandler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/RoutesFunction')),
       environment: {
         NODE_ENV: 'production',
         GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
@@ -95,25 +95,25 @@ export class ApiStack extends cdk.Stack {
     });
 
     const geocodeFunction = new lambda.Function(this, 'GeocodeFunction', {
-    runtime: lambda.Runtime.NODEJS_18_X,
-    handler: 'functions/handlers/geocodeHandler.handler',
-    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
-    environment: {
-      NODE_ENV: 'production',
-      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
-      NEON_DB_URL: env.NEON_DB_URL,
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-    },
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/GeolocationFunction')),
+      environment: {
+        NODE_ENV: 'production',
+        GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      },
       memorySize: 256,
       timeout: cdk.Duration.seconds(15),
       retryAttempts: 2,
     });
 
     const reverseGeocodeFunction = new lambda.Function(this, 'ReverseGeocodeFunction', {
-    runtime: lambda.Runtime.NODEJS_18_X,
-    handler: 'functions/handlers/reverseGeocodeHandler.handler',
-    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
-    environment: {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/ReverseGeocodeFunction')),
+      environment: {
         NODE_ENV: 'production',
         GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
@@ -125,24 +125,24 @@ export class ApiStack extends cdk.Stack {
     });
 
     const placesFunction = new lambda.Function(this, 'PlacesFunction', {
-    runtime: lambda.Runtime.NODEJS_18_X,
-    handler: 'functions/handlers/placesHandler.handler',
-    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
-    environment: {
-      NODE_ENV: 'production',
-      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
-      NEON_DB_URL: env.NEON_DB_URL,
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-    },
-    memorySize: 512, // Increased for places search which returns more data
-    timeout: cdk.Duration.seconds(30),
-    retryAttempts: 2,
-  });
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/PlacesFunction')),
+      environment: {
+        NODE_ENV: 'production',
+        GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      },
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(30),
+      retryAttempts: 2,
+    });
 
     const paymentFunction = new lambda.Function(this, 'PaymentFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'functions/handlers/paymentHandler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../.aws-sam/build/PaymentFunction')),
       environment: {
         NODE_ENV: 'production',
         NEON_DB_URL: env.NEON_DB_URL,
@@ -163,6 +163,14 @@ export class ApiStack extends cdk.Stack {
       resources: ['*']
     }));
 
+    // Create CloudWatch logging role for API Gateway
+    const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayCloudWatchRole', {
+      assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
+      ]
+    });
+
     // Create the API Gateway
     const api = new apigateway.RestApi(this, 'ApiGateway', {
       restApiName: 'Integreat API',
@@ -170,18 +178,54 @@ export class ApiStack extends cdk.Stack {
       deployOptions: {
         stageName: 'prod',
         metricsEnabled: true,
-        loggingLevel: apigateway.MethodLoggingLevel.OFF,
-        dataTraceEnabled: false,
         throttlingBurstLimit: 100,
         throttlingRateLimit: 100
       },
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+          'X-Amz-Security-Token',
+          'X-Amz-User-Agent'
+        ],
+        allowCredentials: true,
+        maxAge: cdk.Duration.days(1)
       },
       defaultMethodOptions: {
-        authorizationType: apigateway.AuthorizationType.NONE
+        authorizationType: apigateway.AuthorizationType.NONE,
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Access-Control-Allow-Origin': true,
+              'method.response.header.Access-Control-Allow-Headers': true,
+              'method.response.header.Access-Control-Allow-Methods': true,
+              'method.response.header.Access-Control-Allow-Credentials': true
+            }
+          },
+          {
+            statusCode: '400',
+            responseParameters: {
+              'method.response.header.Access-Control-Allow-Origin': true,
+              'method.response.header.Access-Control-Allow-Headers': true,
+              'method.response.header.Access-Control-Allow-Methods': true,
+              'method.response.header.Access-Control-Allow-Credentials': true
+            }
+          },
+          {
+            statusCode: '500',
+            responseParameters: {
+              'method.response.header.Access-Control-Allow-Origin': true,
+              'method.response.header.Access-Control-Allow-Headers': true,
+              'method.response.header.Access-Control-Allow-Methods': true,
+              'method.response.header.Access-Control-Allow-Credentials': true
+            }
+          }
+        ]
       }
     });
 

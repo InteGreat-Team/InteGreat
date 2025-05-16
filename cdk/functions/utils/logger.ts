@@ -13,7 +13,7 @@ interface CustomJwtPayload {
 const LOG_TIMEOUT_MS = 1500;
 
 // Convert Lambda headers to Record<string, string>
-function convertHeaders(headers: APIGatewayProxyEventHeaders): Record<string, string> {
+function convertHeaders(headers: APIGatewayProxyEventHeaders = {}): Record<string, string> {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(headers)) {
     if (value !== undefined) {
@@ -31,31 +31,41 @@ function getHeaderCaseInsensitive(headers: Record<string, string | undefined>, k
   return foundKey ? headers[foundKey] || null : null;
 }
 
-async function logTransactionLambda(event: APIGatewayProxyEvent, response: APIGatewayProxyResult, executionTimeMs: number, errorMessage: string | null = null) {
+async function logTransactionLambda(
+  event: APIGatewayProxyEvent,
+  response: APIGatewayProxyResult,
+  executionTimeMs: number,
+  errorMessage: string | null = null
+) {
   // Debug logging to help diagnose missing headers and IP
   console.log('DEBUG: event.headers:', JSON.stringify(event.headers, null, 2));
   console.log('DEBUG: event.requestContext:', JSON.stringify(event.requestContext, null, 2));
 
-  let origin = null;
-  let role = null;
+  let origin: string | null = null;
+  let role: string | null = null;
 
   try {
-    const authHeader = event.headers.Authorization || event.headers.authorization || '';
-    console.log('DEBUG: Raw Authorization header:', authHeader);
-    const token = typeof authHeader === 'string' ? authHeader.split(' ')[1] : null;
-    console.log('DEBUG: Extracted JWT token:', token);
-    if (token) {
-      const decoded = jwtDecode<CustomJwtPayload>(token);
-      console.log('Decoded JWT:', decoded);
-      origin = decoded.aud?.split('-')[0] || null;
-      role = decoded.role || decoded.custom_claim || null;
+    const authHeader = event.headers?.Authorization || event.headers?.authorization;
+    if (typeof authHeader === 'string' && authHeader.trim().toLowerCase().startsWith('bearer ')) {
+      const parts = authHeader.split(' ');
+      if (parts.length === 2 && parts[1]) {
+        const token = parts[1];
+        const decoded = jwtDecode<CustomJwtPayload>(token);
+        origin = decoded.aud?.split('-')[0] || null;
+        role = decoded.role || decoded.custom_claim || null;
+        console.log('Decoded JWT:', decoded);
+      } else {
+        console.warn('Authorization header is malformed, missing token part:', authHeader);
+      }
     }
   } catch (err) {
     console.warn('JWT decode error:', err);
   }
 
-  const pathSegments = event.path.split('/').filter(Boolean); // removes empty strings
-  const destination = pathSegments[0] ? pathSegments[0][0].toUpperCase() + pathSegments[0].slice(1).toLowerCase() : "UNKNOWN";
+  const pathSegments = event.path.split('/').filter(Boolean);
+  const destination = pathSegments[0]
+    ? pathSegments[0][0].toUpperCase() + pathSegments[0].slice(1).toLowerCase()
+    : 'UNKNOWN';
 
   const req = {
     method: event.httpMethod,
@@ -65,12 +75,12 @@ async function logTransactionLambda(event: APIGatewayProxyEvent, response: APIGa
     origin,
     role,
     destination,
-    country: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-country-name') || null,
-    region: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-country-region-name') || null,
-    city: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-city') || null,
-    zip_code: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-postal-code') || null,
-    latitude: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-latitude') || null,
-    longitude: getHeaderCaseInsensitive(event.headers, 'cloudfront-viewer-longitude') || null,
+    country: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-country-name') || null,
+    region: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-country-region-name') || null,
+    city: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-city') || null,
+    zip_code: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-postal-code') || null,
+    latitude: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-latitude') || null,
+    longitude: getHeaderCaseInsensitive(event.headers || {}, 'cloudfront-viewer-longitude') || null,
   };
 
   const res = {
