@@ -1,1 +1,0 @@
-//Logging utility (adapted from middleware) please combine with cloudwatch logger and enable location header
