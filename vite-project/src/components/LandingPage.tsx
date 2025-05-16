@@ -6,6 +6,7 @@ import type { User } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid, LogOut, X } from "lucide-react";
+import { FaAws } from "react-icons/fa";
 import PowerBIDashboard from "./PowerBIDashboard";
 import "./LandingPage.css";
 
@@ -151,6 +152,29 @@ const LandingPage = () => {
 								ctid="2840082d-702c-4fb1-9885-abddd1ddaa1e"
 								height={600}
 							/>
+						</div>
+
+						{/* AWS Console Link Card */}
+						<div className="aws-card">
+							<div className="aws-card-content">
+								<div className="aws-icon">
+									<FaAws size={32} color="#FF9900" />
+								</div>
+								<div className="aws-text">
+									<h3>AWS Management Console</h3>
+									<p>
+										Access your cloud resources and services
+									</p>
+								</div>
+								<a
+									href="https://717279716107.signin.aws.amazon.com/console"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="aws-button"
+								>
+									Go to Console
+								</a>
+							</div>
 						</div>
 					</main>
 				</div>
