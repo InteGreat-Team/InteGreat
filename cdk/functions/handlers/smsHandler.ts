@@ -1,37 +1,32 @@
 /**
  * SMS Handler
  * 
- * This handles HTTP requests related to sending notifications via SMS.
+ * This handles HTTP requests related to sending messages via SMS.
  * It serves as the bridge between API routes and the underlying SMS service.
  * 
  * Key Components:
  * - Request Validation: Ensures required fields are present
- * - Event Retrieval: Fetches event details using the event service
- * - SMS Notification: Sends messages using PHIL SMS service
+ * - SMS Sending: Sends messages using PHIL SMS service
  * - Response Handling: Returns appropriate HTTP status codes and JSON responses
  * 
  * Features:
- * - Input Validation: Validates eventId and recipientPhone before processing
+ * - Input Validation: Validates recipientPhone and message content
  * - Error Handling: Provides specific error messages based on failure type
- * - Logging: Tracks SMS notification attempts and results
- * - Status Codes: Returns semantic HTTP status codes (200, 400, 404, 500)
+ * - Logging: Tracks SMS sending attempts and results
+ * - Status Codes: Returns semantic HTTP status codes (200, 400, 500)
  * 
- * This Handler supports the API Gateway integration with SMS notifications,
+ * This Handler supports the API Gateway integration with SMS functionality,
  * ensuring proper request handling and response formatting.
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import axios from 'axios';
-import { createClient } from '@supabase/supabase-js';
-import { getEventDetails } from '../../shared/services/eventServices';
+import { sendSms } from '../../shared/services/smsServices';
 import { Logger } from '../utils/logger';
 
 // Validate required environment variables
 const requiredEnvVars = {
   PHIL_SMS_API_URL: process.env.PHIL_SMS_API_URL as string,
-  PHIL_SMS_API_KEY: process.env.PHIL_SMS_API_KEY as string,
-  SUPABASE_URL: process.env.SUPABASE_URL as string,
-  SUPABASE_KEY: process.env.SUPABASE_KEY as string
+  PHIL_SMS_API_KEY: process.env.PHIL_SMS_API_KEY as string
 };
 
 // Check if any required environment variables are missing
@@ -44,34 +39,9 @@ if (missingVars.length > 0) {
   throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
 }
 
-// Initialize clients with proper types
-const philSmsClient = axios.create({
-  baseURL: requiredEnvVars.PHIL_SMS_API_URL,
-  headers: {
-    'Authorization': `Bearer ${requiredEnvVars.PHIL_SMS_API_KEY}`,
-    'Content-Type': 'application/json'
-  }
-});
-
-// Initialize Supabase client
-const supabase = createClient(
-  requiredEnvVars.SUPABASE_URL,
-  requiredEnvVars.SUPABASE_KEY
-);
-
-function formatPhoneNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
-  if (digits.startsWith('0')) return `+63${digits.substring(1)}`;
-  if (digits.startsWith('63')) return `+${digits}`;
-  if (digits.startsWith('+')) return digits;
-  return `+63${digits}`;
-}
-
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Environment variables:', {
     NODE_ENV: process.env.NODE_ENV,
-    SUPABASE_URL: !!process.env.SUPABASE_URL,
-    SUPABASE_KEY: !!process.env.SUPABASE_KEY,
     PHIL_SMS_API_URL: !!process.env.PHIL_SMS_API_URL,
     PHIL_SMS_API_KEY: !!process.env.PHIL_SMS_API_KEY,
     NEON_DB_URL: !!process.env.NEON_DB_URL,
@@ -99,9 +69,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return response;
     }
 
-    const { eventId, recipientPhone } = JSON.parse(event.body);
+    const { recipientPhone, message, senderId } = JSON.parse(event.body);
 
-    if (!eventId || !recipientPhone) {
+    // Validate required fields
+    if (!recipientPhone || !message) {
       const response = {
         statusCode: 400,
         headers: {
@@ -110,8 +81,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify({
           error: "Missing required fields",
           details: {
-            eventId: !eventId ? "Event ID is required" : undefined,
-            recipientPhone: !recipientPhone ? "Recipient phone number is required" : undefined
+            recipientPhone: !recipientPhone ? "Recipient phone number is required" : undefined,
+            message: !message ? "Message content is required" : undefined
           }
         })
       };
@@ -119,6 +90,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return response;
     }
 
+    // Validate phone number format
     const digits = recipientPhone.replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 12) {
       const response = {
@@ -134,39 +106,29 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return response;
     }
 
-    const eventDetails = await getEventDetails(eventId, supabase);
+    // Send SMS using the generalized SMS service
+    console.log('Attempting to send SMS to:', recipientPhone);
+    
+    const result = await sendSms(
+      recipientPhone,
+      message,
+      senderId || 'PhilSMS'
+    );
 
-    if (!eventDetails) {
-      const response = {
-        statusCode: 404,
+    if (!result) {
+      const errorResponse = {
+        statusCode: 500,
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          error: "Event not found",
-          eventId
+          error: "Failed to send SMS",
+          details: "See logs for more information"
         })
       };
-      await logger.logResponse(service, event, response, startTime);
-      return response;
+      await logger.logResponse(service, event, errorResponse, startTime);
+      return errorResponse;
     }
-
-    const formattedPhone = formatPhoneNumber(recipientPhone);
-
-    const message = `📢 Event Alert: ${eventDetails.name}
-📅 Date: ${eventDetails.date || "Not specified"}
-🕒 Time: ${eventDetails.start_time || "Not specified"} - ${eventDetails.end_time || "Not specified"}
-📍 Location: ${eventDetails.location || "Not specified"}
-📖 Description: ${eventDetails.description || "No description available"}`;
-
-    const smsNotification = {
-      recipient: formattedPhone,
-      sender_id: 'PhilSMS',
-      type: 'plain',
-      message
-    };
-
-    const response = await philSmsClient.post('/sms/send', smsNotification);
 
     const successResponse = {
       statusCode: 200,
@@ -175,15 +137,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       },
       body: JSON.stringify({
         message: "SMS sent successfully",
-        eventId,
-        recipient: formattedPhone,
-        response: response.data
+        recipient: recipientPhone,
+        contentLength: message.length
       })
     };
     await logger.logResponse(service, event, successResponse, startTime);
     return successResponse;
 
   } catch (error) {
+    console.error('Error in SMS handler:', error);
+    
     const errorResponse = {
       statusCode: 500,
       headers: {

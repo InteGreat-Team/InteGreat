@@ -2,28 +2,23 @@
  * SMS Service
  * 
  * This service handles SMS-related functionality using the PHIL SMS API.
- * It provides methods for sending event details via SMS to specified recipients.
+ * It provides a general-purpose method for sending SMS messages to recipients.
  * 
  * Key Components:
  * - PHIL SMS Integration: Uses Axios for API communication
  * - Phone Number Formatting: Ensures proper international format
- * - Message Generation: Creates structured SMS content
- * - Transaction Logging: Records SMS sending attempts and results
  * 
  * Features:
  * - Error Handling: Catches and logs API errors appropriately
  * - Phone Validation: Ensures valid phone number format
- * - Message Formatting: Creates readable SMS content
  * - Result Tracking: Returns boolean success/failure result
  * 
- * This service provides a reliable way to send event notifications via SMS,
- * with proper error handling and logging for debugging purposes.
+ * This service provides a reliable way to send any SMS notification,
+ * with proper error handling for debugging purposes.
  */
 
 import axios from 'axios';
-import { EventDetails } from '../types/eventTypes';
 import { PhilSmsResponse, SmsNotification } from '../types/smsTypes';
-import { logTransaction } from './eventServices';
 
 const philSmsClient = axios.create({
   baseURL: process.env.PHIL_SMS_API_URL,
@@ -33,6 +28,11 @@ const philSmsClient = axios.create({
   }
 });
 
+/**
+ * Format phone number to international format
+ * @param phone Phone number to format
+ * @returns Formatted phone number
+ */
 function formatPhoneNumber(phone: string): string {
   const digits = phone.replace(/\D/g, '');
   if (digits.startsWith('0')) return `+63${digits.substring(1)}`;
@@ -41,12 +41,22 @@ function formatPhoneNumber(phone: string): string {
   return `+63${digits}`;
 }
 
-export async function sendEventNotification(
-  event: EventDetails,
-  recipientPhone?: string
+/**
+ * General purpose function to send an SMS to a recipient
+ * 
+ * @param recipientPhone - Phone number of the recipient
+ * @param message - SMS message content
+ * @param senderId - Optional sender ID (defaults to 'PhilSMS')
+ * @returns Promise<boolean> - True if SMS was sent successfully
+ */
+export async function sendSms(
+  recipientPhone: string,
+  message: string,
+  senderId: string = 'PhilSMS'
 ): Promise<boolean> {
   try {
     if (!recipientPhone) throw new Error('Recipient phone number is required');
+    if (!message || message.trim() === '') throw new Error('Message content is required');
 
     const digits = recipientPhone.replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 12) {
@@ -55,15 +65,9 @@ export async function sendEventNotification(
 
     const formattedPhone = formatPhoneNumber(recipientPhone);
 
-    const message = `📢 Event Alert: ${event.name}
-📅 Date: ${event.date || "Not specified"}
-🕒 Time: ${event.start_time || "Not specified"} - ${event.end_time || "Not specified"}
-📍 Location: ${event.location || "Not specified"}
-📖 Description: ${event.description || "No description available"}`;
-
     const smsNotification: SmsNotification = {
       recipient: formattedPhone,
-      sender_id: 'PhilSMS',
+      sender_id: senderId,
       type: 'plain',
       message,
     };
@@ -81,16 +85,10 @@ export async function sendEventNotification(
       throw new Error(`API returned non-success status: ${JSON.stringify(errorDetails)}`);
     }
 
-    await logTransaction(
-      event.event_id,
-      "POST",
-      "SUCCESS",
-      `Notification sent to ${formattedPhone} - Message ID: ${responseData.message_id || 'unknown'}`
-    );
-
+    console.log(`✅ SMS sent successfully to ${formattedPhone} - Message ID: ${responseData.message_id || 'unknown'}`);
     return true;
   } catch (error) {
-    console.error("❌ Error sending notification:", error);
+    console.error("❌ Error sending SMS:", error);
 
     const errorMessage = (error as Error).message;
     const apiError = (error as any)?.response?.data;
@@ -112,14 +110,6 @@ export async function sendEventNotification(
     };
 
     console.error("❌ Detailed error:", detailedError);
-
-    await logTransaction(
-      event.event_id,
-      "POST",
-      "ERROR",
-      `Notification failed: ${JSON.stringify(detailedError)}`
-    );
-
-    throw new Error(JSON.stringify(detailedError));
+    return false;
   }
-} 
+}

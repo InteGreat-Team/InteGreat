@@ -35,8 +35,6 @@ const envConfig = JSON.parse(fs.readFileSync(envPath, 'utf8'));
 
 // Define environment variables with defaults
 const env = {
-  SUPABASE_URL: envConfig.Parameters.SUPABASE_URL || '',
-  SUPABASE_KEY: envConfig.Parameters.SUPABASE_KEY || '',
   NEON_DB_URL: envConfig.Parameters.NEON_DB_URL || '',
   PHIL_SMS_API_URL: envConfig.Parameters.PHIL_SMS_API_URL || '',
   PHIL_SMS_API_KEY: envConfig.Parameters.PHIL_SMS_API_KEY || '',
@@ -55,15 +53,15 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: env.SUPABASE_URL,
-        SUPABASE_KEY: env.SUPABASE_KEY,
         PHIL_SMS_API_URL: env.PHIL_SMS_API_URL,
         PHIL_SMS_API_KEY: env.PHIL_SMS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        AWS_REGION: 'ap-southeast-1'
       },
-      memorySize: 256,
+      memorySize: 512, 
       timeout: cdk.Duration.seconds(30),
+      retryAttempts: 3,
     });
 
     const emailFunction = new lambda.Function(this, 'EmailFunction', {
@@ -72,31 +70,79 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: env.SUPABASE_URL,
-        SUPABASE_KEY: env.SUPABASE_KEY,
         SES_SENDER_EMAIL: env.SES_SENDER_EMAIL,
         NEON_DB_URL: env.NEON_DB_URL,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        AWS_REGION: 'ap-southeast-1' 
       },
-      memorySize: 256,
+      memorySize: 512, 
       timeout: cdk.Duration.seconds(30),
+      retryAttempts: 3, 
     });
 
-    const geolocationFunction = new lambda.Function(this, 'GeolocationFunction', {
+    const routesFunction = new lambda.Function(this, 'RoutesFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'functions/handlers/geolocationHandler.handler',
+      handler: 'functions/handlers/routesHandler.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: env.SUPABASE_URL,
-        SUPABASE_KEY: env.SUPABASE_KEY,
         GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        AWS_REGION: 'ap-southeast-1'
+      },
+      memorySize: 512, 
+      timeout: cdk.Duration.seconds(30),
+      retryAttempts: 3,
+    });
+
+    const geocodeFunction = new lambda.Function(this, 'GeocodeFunction', {
+    runtime: lambda.Runtime.NODEJS_18_X,
+    handler: 'functions/handlers/geocodeHandler.handler',
+    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+    environment: {
+      NODE_ENV: 'production',
+      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+      NEON_DB_URL: env.NEON_DB_URL,
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      AWS_REGION: 'ap-southeast-1'
+    },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(15),
+      retryAttempts: 2,
+    });
+
+    const reverseGeocodeFunction = new lambda.Function(this, 'ReverseGeocodeFunction', {
+    runtime: lambda.Runtime.NODEJS_18_X,
+    handler: 'functions/handlers/reverseGeocodeHandler.handler',
+    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+    environment: {
+        NODE_ENV: 'production',
+        GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+        NEON_DB_URL: env.NEON_DB_URL,
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        AWS_REGION: 'ap-southeast-1'
       },
       memorySize: 256,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(15),
+      retryAttempts: 2,
     });
+
+    const placesFunction = new lambda.Function(this, 'PlacesFunction', {
+    runtime: lambda.Runtime.NODEJS_18_X,
+    handler: 'functions/handlers/placesHandler.handler',
+    code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
+    environment: {
+      NODE_ENV: 'production',
+      GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+      NEON_DB_URL: env.NEON_DB_URL,
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      AWS_REGION: 'ap-southeast-1'
+    },
+    memorySize: 512, // Increased for places search which returns more data
+    timeout: cdk.Duration.seconds(30),
+    retryAttempts: 2,
+  });
 
     const paymentFunction = new lambda.Function(this, 'PaymentFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -104,8 +150,6 @@ export class ApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../dist')),
       environment: {
         NODE_ENV: 'production',
-        SUPABASE_URL: env.SUPABASE_URL,
-        SUPABASE_KEY: env.SUPABASE_KEY,
         NEON_DB_URL: env.NEON_DB_URL,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
       },
@@ -200,9 +244,87 @@ export class ApiStack extends cdk.Stack {
     });
 
     // Add the geolocation endpoint
-    const maps = api.root.addResource('maps');
-    const geocode = maps.addResource('geocode');
-    geocode.addMethod('GET', new apigateway.LambdaIntegration(geolocationFunction), {
+    const geolocation = api.root.addResource('geolocation');
+    const geocode = geolocation.addResource('geocode');
+    geocode.addMethod('GET', new apigateway.LambdaIntegration(geocodeFunction), {
+      authorizationType: apigateway.AuthorizationType.NONE,
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '400',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '500',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        }
+      ]
+    });
+
+    // 2. Reverse Geocode endpoint
+    const reverseGeocode = geolocation.addResource('reverse-geocode');
+    reverseGeocode.addMethod('GET', new apigateway.LambdaIntegration(reverseGeocodeFunction), {
+      authorizationType: apigateway.AuthorizationType.NONE,
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '400',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '500',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        }
+      ]
+    });
+
+    // 3. Routes endpoint
+    const routes = geolocation.addResource('routes');
+    routes.addMethod('GET', new apigateway.LambdaIntegration(routesFunction), {
+      authorizationType: apigateway.AuthorizationType.NONE,
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '400',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        },
+        {
+          statusCode: '500',
+          responseParameters: {
+            'method.response.header.Access-Control-Allow-Origin': true
+          }
+        }
+      ]
+    });
+
+    // 4. Places endpoint
+    const places = geolocation.addResource('places');
+    places.addMethod('POST', new apigateway.LambdaIntegration(placesFunction), {
       authorizationType: apigateway.AuthorizationType.NONE,
       methodResponses: [
         {
@@ -260,7 +382,7 @@ export class ApiStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
       },
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Use only North America and Europe edge locations
