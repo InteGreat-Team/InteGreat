@@ -11,8 +11,10 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Add email guard - only allow integreatapi@gmail.com
-      if (user && user.email === "integreatapi@gmail.com") {
+      // List of allowed emails
+      const allowedEmails = ["integreatapi@gmail.com", "apdiaz@ust.edu.ph", "jgcatubag@ust.edu.ph"];
+      
+      if (user && user.email && allowedEmails.includes(user.email)) {
         try {
           // Force token refresh to verify user still exists on server
           await user.getIdToken(true);
